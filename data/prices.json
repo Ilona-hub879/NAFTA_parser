@@ -1,0 +1,183 @@
+{
+  "scraped_at": "2026-04-04T23:01:34.792597",
+  "stations": {
+    "circle_k": {
+      "name": "Circle K",
+      "logo": "images/Circle_K.png",
+      "url": "https://www.circlek.lv/degvielas-cenas",
+      "address": "Vairāk nekā 60 AZS Latvijā",
+      "prices": {
+        "95": 1.714,
+        "98": 1.829,
+        "D": 1.598,
+        "LPG": 0.689,
+        "AdBlue": 0.249
+      },
+      "discounts": {
+        "EXTRA": 0.07,
+        "Mans Rimi": 0.04
+      },
+      "amenities": [
+        "coffee",
+        "food",
+        "car_wash",
+        "tire"
+      ],
+      "trends": {
+        "95": "stable",
+        "98": "down",
+        "D": "up",
+        "LPG": "stable"
+      },
+      "promos": [
+        {
+          "promo_text": "Akcija! Ar Circle K EXTRA karti -7 c/l degvielai AI-95 un dīzeļdegvielai",
+          "discount_eur": 0.07,
+          "fuel": "95",
+          "final_prices": {
+            "95": 1.644,
+            "D": 1.528
+          }
+        },
+        {
+          "promo_text": "Mans Rimi karte: atlaide -4 c/l pie uzpildes no 30L",
+          "discount_eur": 0.04,
+          "fuel": null,
+          "final_prices": {
+            "95": 1.674,
+            "D": 1.558
+          }
+        }
+      ],
+      "scraped_at": "2026-04-04T23:01:34.792597"
+    },
+    "neste": {
+      "name": "Neste",
+      "logo": "images/Neste.png",
+      "url": "https://www.neste.lv/lv/content/degvielas-cenas",
+      "address": "30+ AZS Latvijā",
+      "prices": {
+        "95": 1.699,
+        "98": 1.809,
+        "D": 1.579
+      },
+      "discounts": {
+        "Neste Card": 0.06
+      },
+      "amenities": [
+        "coffee",
+        "food"
+      ],
+      "trends": {
+        "95": "down",
+        "98": "down",
+        "D": "stable"
+      },
+      "promos": [
+        {
+          "promo_text": "Neste Card īpašais piedāvājums: -6 c/l visām degvielas veidiem",
+          "discount_eur": 0.06,
+          "fuel": null,
+          "final_prices": {
+            "95": 1.639,
+            "98": 1.749,
+            "D": 1.519
+          }
+        }
+      ],
+      "scraped_at": "2026-04-04T23:01:34.792597"
+    },
+    "viada": {
+      "name": "Viada",
+      "logo": "images/Viada.png",
+      "url": "https://www.viada.lv/ru/fuel-prices/",
+      "address": "15+ AZS Latvijā",
+      "prices": {
+        "95": 1.709,
+        "D": 1.569
+      },
+      "discounts": {
+        "Viada plus (līdz 70 l)": 0.025,
+        "Viada plus (virs 70 l)": 0.035
+      },
+      "amenities": [
+        "coffee",
+        "tire",
+        "car_wash"
+      ],
+      "trends": {
+        "95": "stable",
+        "D": "down"
+      },
+      "promos": [
+        {
+          "promo_text": "Viada plus karte: atlaide -2.5 c/l (līdz 70 l mēnesī)",
+          "discount_eur": 0.025,
+          "fuel": null,
+          "final_prices": {
+            "95": 1.684,
+            "D": 1.544
+          }
+        },
+        {
+          "promo_text": "Viada plus karte: atlaide -3.5 c/l (virs 70 l mēnesī)",
+          "discount_eur": 0.035,
+          "fuel": null,
+          "final_prices": {
+            "95": 1.674,
+            "D": 1.534
+          }
+        }
+      ],
+      "scraped_at": "2026-04-04T23:01:34.792597"
+    },
+    "virsi": {
+      "name": "Virši",
+      "logo": "images/Virsi.png",
+      "url": "https://www.virsi.lv/lv/private/fuel/cenas",
+      "address": "40+ AZS Latvijā",
+      "prices": {
+        "95": 1.719,
+        "98": 1.839,
+        "D": 1.609,
+        "LPG": 0.679
+      },
+      "discounts": {
+        "Virši+": 0.05
+      },
+      "amenities": [
+        "coffee",
+        "food",
+        "car_wash"
+      ],
+      "trends": {
+        "95": "up",
+        "98": "stable",
+        "D": "stable",
+        "LPG": "down"
+      },
+      "promos": [
+        {
+          "promo_text": "Nedēļas nogales akcija: atlaide -10 c/l benzīnam AI-95 sestdienā un svētdienā",
+          "discount_eur": 0.1,
+          "fuel": "95",
+          "final_prices": {
+            "95": 1.619
+          }
+        },
+        {
+          "promo_text": "Virši+ karte: -5 c/l visām degvielas veidiem",
+          "discount_eur": 0.05,
+          "fuel": null,
+          "final_prices": {
+            "95": 1.669,
+            "98": 1.789,
+            "D": 1.559,
+            "LPG": 0.629
+          }
+        }
+      ],
+      "scraped_at": "2026-04-04T23:01:34.792597"
+    }
+  }
+}
