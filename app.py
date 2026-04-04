@@ -337,8 +337,8 @@ h1, h2, h3 {{
     padding: 18px 20px;
 }}
 [data-testid="metric-container"] label {{
-    color: #9ca3af !important;
-    font-size: .75rem !important;
+    color: #d1d5db !important;
+    font-size: 1rem !important;
     text-transform: uppercase;
     letter-spacing: .08em;
 }}
@@ -400,7 +400,7 @@ hr {{
 .price-main {{
     font-family: 'Syne', sans-serif;
     font-size: 1.5rem;
-    font-weight: 800;
+    font-weight: 700;
     color: #ffffff;
     line-height: 1;
 }}
@@ -569,6 +569,24 @@ hr {{
 /* ── Hide default chrome ── */
 #MainMenu, footer {{ visibility: hidden; }}
 </style>
+<script>
+(function patchArrows() {{
+    function replace() {{
+        document.querySelectorAll('button span, button p').forEach(function(el) {{
+            var t = (el.textContent || '').trim();
+            if (t === 'keyboard_double_arrow_left') {{
+                el.textContent = '<<';
+                el.style.cssText = 'font-family:Syne,sans-serif;font-size:1.2rem;font-weight:700;color:#00ff7f;letter-spacing:normal;';
+            }} else if (t === 'keyboard_double_arrow_right') {{
+                el.textContent = '>>';
+                el.style.cssText = 'font-family:Syne,sans-serif;font-size:1.2rem;font-weight:700;color:#00ff7f;letter-spacing:normal;';
+            }}
+        }});
+    }}
+    replace();
+    setInterval(replace, 400);
+}})();
+</script>
 """, unsafe_allow_html=True)
 
 
@@ -647,6 +665,7 @@ def render_sidebar() -> tuple[str, str, list[str]]:
             ok, err = _run_scraper([])
         if ok:
             st.sidebar.success("✅ Dati atjaunoti!")
+            st.session_state["_close_sidebar"] = True
             st.rerun()
         else:
             # Real scraper failed — silently fall back to demo data
@@ -656,6 +675,7 @@ def render_sidebar() -> tuple[str, str, list[str]]:
                 st.sidebar.warning(
                     "⚠️ Reālie dati nav pieejami. Rādīti demonstrācijas dati."
                 )
+                st.session_state["_close_sidebar"] = True
                 st.rerun()
             else:
                 st.sidebar.error(
@@ -861,6 +881,27 @@ def render_analytics(stations: dict, fuel: str, loyalty_key: str) -> None:
 
 def main() -> None:
     inject_css()
+
+    # ── Auto-close sidebar after scrape refresh ──────────────────────────────
+    if st.session_state.pop("_close_sidebar", False):
+        st.markdown(
+            """<script>
+(function tryClose() {
+    var attempts = 0;
+    var t = setInterval(function() {
+        attempts++;
+        if (attempts > 20) { clearInterval(t); return; }
+        var sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        if (!sidebar) return;
+        var btn = sidebar.querySelector('button[data-testid="baseButton-header"]')
+                  || sidebar.querySelector('button[kind="header"]')
+                  || sidebar.querySelector('button');
+        if (btn) { btn.click(); clearInterval(t); }
+    }, 150);
+})();
+</script>""",
+            unsafe_allow_html=True,
+        )
 
     # ── Header ──────────────────────────────────────────────────────────────
     st.markdown(
