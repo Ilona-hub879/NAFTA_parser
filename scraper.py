@@ -808,4 +808,15 @@ if __name__ == "__main__":
         generate_demo()
     else:
         debug = "--debug" in sys.argv
-        asyncio.run(scrape_all(debug=debug))
+        try:
+            asyncio.run(scrape_all(debug=debug))
+        except Exception as exc:
+            # On cloud deployments Playwright / Chromium may be unavailable.
+            # Fall back to demo data so the UI always has something to show.
+            print(
+                f"⚠  Real scrape failed ({exc}). "
+                "Falling back to demo data.",
+                file=sys.stderr,
+            )
+            generate_demo()
+            sys.exit(0)

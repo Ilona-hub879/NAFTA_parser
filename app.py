@@ -197,7 +197,7 @@ def inject_css() -> None:
 
     st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@600;700;800&family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
 
 /* ── Base ── */
 html, body, [class*="css"] {{
@@ -227,6 +227,48 @@ html, body, [class*="css"] {{
 [data-testid="stSidebar"] span {{
     color: #e5e7eb !important;
     font-family: 'Inter', sans-serif !important;
+}}
+/* ── Hide Streamlit's default sidebar-collapse icon label ── */
+[data-testid="collapsedControl"] {{
+    display: none !important;
+}}
+button[title*="keyboard"],
+button[aria-label*="keyboard"] {{
+    display: none !important;
+}}
+/* When Material Symbols font is missing the icon name renders as plain text — hide it */
+.material-symbols-sharp,
+.material-symbols-outlined,
+.material-symbols-rounded {{
+    font-family: 'Material Symbols Sharp', 'Material Symbols Outlined', sans-serif !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    display: inline-block !important;
+    max-width: 26px !important;
+}}
+
+/* ── Mobile: sidebar = full-screen overlay ── */
+@media (max-width: 768px) {{
+    section[data-testid="stSidebar"] {{
+        width: 100vw !important;
+        min-width: 100vw !important;
+        max-width: 100vw !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        overflow-y: auto !important;
+    }}
+    section[data-testid="stSidebar"] > div:first-child {{
+        width: 100vw !important;
+        min-width: 100vw !important;
+        padding: 1rem 1.2rem !important;
+    }}
 }}
 
 /* ── Headings ── */
@@ -350,20 +392,20 @@ hr {{
 }}
 .station-name {{
     font-family: 'Syne', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.55rem;
     font-weight: 700;
     color: #ffffff;
     margin: 4px 0;
 }}
 .price-main {{
     font-family: 'Syne', sans-serif;
-    font-size: 2.2rem;
+    font-size: 1.5rem;
     font-weight: 800;
     color: #ffffff;
     line-height: 1;
 }}
 .price-unit {{
-    font-size: .85rem;
+    font-size: 1rem;
     color: #6b7280;
     margin-left: 2px;
 }}
@@ -374,7 +416,7 @@ hr {{
     color: #00ff7f;
 }}
 .gift-row {{
-    font-size: .78rem;
+    font-size: 1.05rem;
     color: #9ca3af;
     margin-top: 2px;
 }}
@@ -383,24 +425,24 @@ hr {{
     background: rgba(0,255,127,0.12);
     border: 1px solid rgba(0,255,127,0.35);
     border-radius: 8px;
-    padding: 3px 10px;
-    font-size: .75rem;
+    padding: 5px 12px;
+    font-size: 1rem;
     color: #00ff7f;
     margin-top: 6px;
 }}
 .trend-badge {{
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-left: 6px;
 }}
 .freshness {{
-    font-size: .68rem;
+    font-size: .95rem;
     color: #4b5563;
     letter-spacing: .04em;
     margin-top: 10px;
 }}
 .amenities {{
-    font-size: .95rem;
+    font-size: 1.3rem;
     margin-top: 8px;
     letter-spacing: .04em;
 }}
@@ -429,7 +471,7 @@ hr {{
     color: #00ff7f;
 }}
 .analytic-label {{
-    font-size: .72rem;
+    font-size: 1rem;
     color: #6b7280;
     text-transform: uppercase;
     letter-spacing: .1em;
@@ -449,7 +491,7 @@ hr {{
 }}
 .no-data {{
     color: #4b5563;
-    font-size: .85rem;
+    font-size: 1.1rem;
     font-style: italic;
 }}
 
@@ -491,8 +533,8 @@ hr {{
     background: rgba(255,68,68,0.12);
     border: 1px solid rgba(255,68,68,0.35);
     border-radius: 8px;
-    padding: 4px 10px;
-    font-size: .72rem;
+    padding: 6px 12px;
+    font-size: .95rem;
     color: #ff6b6b;
     margin-top: 8px;
     word-break: break-word;
@@ -505,16 +547,16 @@ hr {{
     padding-top: 8px;
 }}
 .promo-item {{
-    font-size: .72rem;
+    font-size: 1rem;
     color: #9ca3af;
-    line-height: 1.45;
+    line-height: 1.5;
     margin-bottom: 5px;
     padding-left: 8px;
     border-left: 2px solid rgba(0,255,127,.4);
 }}
 .promo-final {{
     font-family: 'Syne', sans-serif;
-    font-size: .95rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #00ff7f;
 }}
@@ -549,7 +591,10 @@ def render_sidebar() -> tuple[str, str, list[str]]:
         '<div style="font-family:\'Syne\',sans-serif;font-size:1.3rem;'
         'font-weight:800;color:#00ff7f;letter-spacing:.05em;">Degvielas<span style="color:#fff;">.</span>lv</div>'
         '<div style="font-size:.68rem;color:#4b5563;text-transform:uppercase;'
-        'letter-spacing:.12em;margin-bottom:20px;">Cenas reāllaikā</div>',
+        'letter-spacing:.12em;margin-bottom:12px;">Cenas reāllaikā</div>'
+        '<div style="font-family:\'Inter\',sans-serif;font-size:1rem;'
+        'color:#9ca3af;margin-bottom:16px;line-height:1.5;">'
+        '👇 Atlasiet vajadzīgās opcijas</div>',
         unsafe_allow_html=True,
     )
 
@@ -598,19 +643,24 @@ def render_sidebar() -> tuple[str, str, list[str]]:
 
     # Scrape button
     if st.sidebar.button("🔄  Atjaunot cenas", use_container_width=True):
-        with st.spinner("Scraping…"):
-            try:
-                result = subprocess.run(
-                    [sys.executable, "scraper.py"],
-                    capture_output=True, text=True, timeout=120,
+        with st.spinner("Iegūst cenas…"):
+            ok, err = _run_scraper([])
+        if ok:
+            st.sidebar.success("✅ Dati atjaunoti!")
+            st.rerun()
+        else:
+            # Real scraper failed — silently fall back to demo data
+            with st.spinner("Reālie dati nav pieejami — ģenerē demonstrācijas datus…"):
+                ok_demo, _ = _run_scraper(["--demo"])
+            if ok_demo:
+                st.sidebar.warning(
+                    "⚠️ Reālie dati nav pieejami. Rādīti demonstrācijas dati."
                 )
-                if result.returncode == 0:
-                    st.sidebar.success("Dati atjaunoti!")
-                    st.rerun()
-                else:
-                    st.sidebar.error(f"Kļūda: {result.stderr[:300]}")
-            except subprocess.TimeoutExpired:
-                st.sidebar.warning("Timeout — mēģini vēlāk")
+                st.rerun()
+            else:
+                st.sidebar.error(
+                    "Neizdevās iegūt datus. Pārbaudiet interneta savienojumu."
+                )
 
     st.sidebar.markdown(
         '<div style="font-size:.65rem;color:#374151;text-align:center;margin-top:16px;">'
