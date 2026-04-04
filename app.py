@@ -16,16 +16,16 @@ import streamlit as st
 import os
 import subprocess
 
-# Эта функция принудительно устанавливает браузер Playwright на сервере
-def install_playwright():
+@st.cache_resource
+def install_playwright_browsers():
     try:
-        # Проверяем, установлен ли уже браузер (чтобы не качать каждый раз)
+        # Пытаемся установить только Chromium (он легче всего)
         subprocess.run(["playwright", "install", "chromium"], check=True)
     except Exception as e:
-        print(f"Error installing playwright: {e}")
+        st.error(f"Ошибка установки браузера: {e}")
 
-# Запускаем установку
-install_playwright()
+# Запускаем установку один раз при загрузке
+install_playwright_browsers()
 
 # ── must be the very first Streamlit call ─────────────────────────────────
 st.set_page_config(
