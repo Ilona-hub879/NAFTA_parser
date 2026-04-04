@@ -13,6 +13,20 @@ from pathlib import Path
 
 import streamlit as st
 
+import os
+import subprocess
+
+# Эта функция принудительно устанавливает браузер Playwright на сервере
+def install_playwright():
+    try:
+        # Проверяем, установлен ли уже браузер (чтобы не качать каждый раз)
+        subprocess.run(["playwright", "install", "chromium"], check=True)
+    except Exception as e:
+        print(f"Error installing playwright: {e}")
+
+# Запускаем установку
+install_playwright()
+
 # ── must be the very first Streamlit call ─────────────────────────────────
 st.set_page_config(
     page_title="Degvielas Cenas | Latvija",
@@ -95,11 +109,56 @@ def _freshness(iso: str) -> str:
         return "nezināms laiks"
 
 
+def _run_scraper(args: list[str]) -> tuple[bool, str]:
+    """
+    Run scraper.py with given args via the same Python interpreter.
+    Returns (success, stderr_excerpt).
+    """
+    try:
+        result = subprocess.run(
+            [sys.executable, "scraper.py"] + args,
+            capture_output=True,
+            text=True,
+            timeout=180,
+            encoding="utf-8",
+            errors="replace",
+        )
+        return result.returncode == 0, result.stderr[:400]
+    except subprocess.TimeoutExpired:
+        return False, "Timeout (180 s)"
+    except Exception as exc:
+        return False, str(exc)
+
+
+def bootstrap_if_needed() -> bool:
+    """
+    If prices.json is missing, auto-generate demo data so the UI
+    always has something to show on first launch.
+
+    Returns True if bootstrap was performed (caller should show a banner).
+    """
+    if DATA_FILE.exists():
+        return False
+
+    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+    with st.spinner("Pirmā palaišana — ģenerē demonstrācijas datus…"):
+        ok, err = _run_scraper(["--demo"])
+
+    if not ok:
+        st.error(
+            f"Neizdevās ģenerēt datus: {err}. "
+            "Palaid `python scraper.py --demo` manuāli."
+        )
+        st.stop()
+
+    return True
+
+
 def load_data() -> tuple[dict, str | None]:
     """
     Load prices.json.
-    Returns (data_dict, error_message).
-    error_message is None on success.
+    Returns (data_dict, error_message | None).
     """
     if not DATA_FILE.exists():
         return {}, (
@@ -765,6 +824,14 @@ def main() -> None:
 
     # ── Sidebar ──────────────────────────────────────────────────────────────
     selected_fuel, loyalty_key, amenity_filter = render_sidebar()
+
+    # ── Auto-bootstrap: generate demo data if prices.json is missing ─────────
+    was_bootstrapped = bootstrap_if_needed()
+    if was_bootstrapped:
+        st.info(
+            "**Demonstrācijas dati.** Cenas ir ilustratīvas. "
+            "Nospied **🔄 Atjaunot cenas** sānjoslā, lai iegūtu reālās cenas."
+        )
 
     # ── Load data ────────────────────────────────────────────────────────────
     data, load_error = load_data()

@@ -43,6 +43,10 @@ desktop.ini
 *.swp
 *.swo
 
+# ── Project docs & IDE config (kept local only) ────────────────────────────
+Description of Task.docx
+.cursorrules.txt
+
 # ── Project-specific ───────────────────────────────────────────────────────
 # Playwright browser binaries
 playwright-browsers/
