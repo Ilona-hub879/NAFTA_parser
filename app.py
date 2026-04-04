@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 import os
 import subprocess
@@ -344,9 +345,11 @@ h1, h2, h3 {{
 }}
 [data-testid="stMetricValue"] {{
     color: #ffffff !important;
-    font-family: 'Syne', sans-serif !important;
+    font-family: 'Inter', sans-serif !important;
     font-size: 1.8rem !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums !important;
+    letter-spacing: -.01em !important;
 }}
 [data-testid="stMetricDelta"] {{
     font-size: .8rem !important;
@@ -465,10 +468,12 @@ hr {{
     text-align: center;
 }}
 .analytic-value {{
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.9rem;
-    font-weight: 800;
+    font-weight: 700;
     color: #00ff7f;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.01em;
 }}
 .analytic-label {{
     font-size: 1rem;
@@ -569,25 +574,44 @@ hr {{
 /* ── Hide default chrome ── */
 #MainMenu, footer {{ visibility: hidden; }}
 </style>
-<script>
-(function patchArrows() {{
-    function replace() {{
-        document.querySelectorAll('button span, button p').forEach(function(el) {{
-            var t = (el.textContent || '').trim();
-            if (t === 'keyboard_double_arrow_left') {{
-                el.textContent = '<<';
-                el.style.cssText = 'font-family:Syne,sans-serif;font-size:1.2rem;font-weight:700;color:#00ff7f;letter-spacing:normal;';
-            }} else if (t === 'keyboard_double_arrow_right') {{
-                el.textContent = '>>';
-                el.style.cssText = 'font-family:Syne,sans-serif;font-size:1.2rem;font-weight:700;color:#00ff7f;letter-spacing:normal;';
-            }}
-        }});
-    }}
-    replace();
-    setInterval(replace, 400);
-}})();
-</script>
 """, unsafe_allow_html=True)
+
+
+def inject_js() -> None:
+    """
+    Execute JavaScript that modifies the Streamlit DOM.
+    Must use components.html() — script tags in st.markdown are stripped.
+    window.parent.document gives access to the main Streamlit frame.
+    """
+    components.html(
+        """<script>
+(function patchArrows() {
+    function replace() {
+        window.parent.document
+            .querySelectorAll('button span, button p')
+            .forEach(function(el) {
+                var t = (el.textContent || '').trim();
+                if (t === 'keyboard_double_arrow_left') {
+                    el.textContent = '<<';
+                    el.style.cssText =
+                        'font-family:Syne,sans-serif;font-size:1.2rem;' +
+                        'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
+                        'display:inline;';
+                } else if (t === 'keyboard_double_arrow_right') {
+                    el.textContent = '>>';
+                    el.style.cssText =
+                        'font-family:Syne,sans-serif;font-size:1.2rem;' +
+                        'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
+                        'display:inline;';
+                }
+            });
+    }
+    replace();
+    setInterval(replace, 500);
+})();
+</script>""",
+        height=0,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -881,26 +905,29 @@ def render_analytics(stations: dict, fuel: str, loyalty_key: str) -> None:
 
 def main() -> None:
     inject_css()
+    inject_js()
 
     # ── Auto-close sidebar after scrape refresh ──────────────────────────────
     if st.session_state.pop("_close_sidebar", False):
-        st.markdown(
+        components.html(
             """<script>
 (function tryClose() {
     var attempts = 0;
     var t = setInterval(function() {
         attempts++;
-        if (attempts > 20) { clearInterval(t); return; }
-        var sidebar = document.querySelector('section[data-testid="stSidebar"]');
+        if (attempts > 25) { clearInterval(t); return; }
+        var doc = window.parent.document;
+        var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
         if (!sidebar) return;
-        var btn = sidebar.querySelector('button[data-testid="baseButton-header"]')
+        var btn = doc.querySelector('[data-testid="collapsedControl"]')
+                  || sidebar.querySelector('button[data-testid="baseButton-header"]')
                   || sidebar.querySelector('button[kind="header"]')
                   || sidebar.querySelector('button');
         if (btn) { btn.click(); clearInterval(t); }
-    }, 150);
+    }, 200);
 })();
 </script>""",
-            unsafe_allow_html=True,
+            height=0,
         )
 
     # ── Header ──────────────────────────────────────────────────────────────
