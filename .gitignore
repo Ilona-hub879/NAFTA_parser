@@ -47,8 +47,14 @@ desktop.ini
 # Playwright browser binaries
 playwright-browsers/
 
+# Scraped data (generated at runtime — not stored in repo)
+data/prices.json
+
 # Debug screenshots from scraper --debug
 data/debug_*.png
 
 # Streamlit runtime state
 .streamlit/secrets.toml
+
+prices.json
+data/
