@@ -6,6 +6,7 @@ Design: DESIGN_SYSTEM.md (anthracite / emerald palette, Syne + Inter fonts).
 
 import base64
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -13,20 +14,6 @@ from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
-
-import os
-import subprocess
-
-@st.cache_resource
-def install_playwright_browsers():
-    try:
-        # Пытаемся установить только Chromium (он легче всего)
-        subprocess.run(["playwright", "install", "chromium"], check=True)
-    except Exception as e:
-        st.error(f"Ошибка установки браузера: {e}")
-
-# Запускаем установку один раз при загрузке
-install_playwright_browsers()
 
 # ── must be the very first Streamlit call ─────────────────────────────────
 st.set_page_config(
