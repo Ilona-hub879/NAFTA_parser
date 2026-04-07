@@ -5,7 +5,13 @@
 # Python >= 3.11 required (uses X | Y union types, match-case not needed)
 
 # ── Web scraping ───────────────────────────────────────────────────────────
-playwright==1.58.0          # headless Chromium automation (scraper.py)
+# Primary: HTTP-based (no browser needed — works on Streamlit Cloud)
+requests==2.32.3            # friendly HTTP client
+beautifulsoup4==4.12.3      # HTML parsing fallback
+lxml==5.3.0                 # fast parser backend for BS4
+
+# Secondary: Playwright (Chromium) for JS-heavy pages (Virši SPA etc.)
+playwright==1.58.0          # headless Chromium automation
 
 # ── Dashboard ──────────────────────────────────────────────────────────────
 streamlit==1.56.0           # web UI (app.py)
