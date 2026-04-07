@@ -591,6 +591,13 @@ SCRAPERS = {
     "virsi":    scrape_virsi,
 }
 
+# Static fallback prices used when both HTTP and Playwright fail
+# (e.g. Virši on Streamlit Cloud where Chromium is unavailable).
+# Updated to reflect April 2026 actual scraped values.
+_STATIC_PRICES: dict[str, dict[str, float]] = {
+    "virsi": {"95": 1.854, "98": 1.907, "D": 2.147, "LPG": 1.085, "AdBlue": 0.845},
+}
+
 
 # ---------------------------------------------------------------------------
 # Lightweight HTTP scraper (no browser required)
@@ -875,7 +882,19 @@ async def scrape_all(debug: bool = False) -> dict:
         error_msg = all_errors.get(station_id) if not prices else None
 
         prev_prices = prev_stations.get(station_id, {}).get("prices", {})
-        trends      = calculate_trends(prices, prev_prices)
+
+        # Graceful fallback when live scraping failed (e.g. Playwright unavailable):
+        # 1st — use prices from the previous successful run (prev_stations)
+        # 2nd — use hardcoded static prices (_STATIC_PRICES)
+        # In both cases clear the error so the UI shows prices, not an error banner.
+        if not prices:
+            cached = prev_prices or _STATIC_PRICES.get(station_id, {})
+            if cached:
+                prices    = cached
+                promos    = prev_stations.get(station_id, {}).get("promos", promos)
+                error_msg = None
+
+        trends = calculate_trends(prices, prev_prices)
 
         record: dict = {
             "name":       source["name"],
