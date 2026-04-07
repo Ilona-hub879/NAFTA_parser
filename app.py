@@ -96,18 +96,21 @@ def _b64(path: str) -> str:
         return ""
 
 
-def _freshness(iso: str) -> str:
+def _freshness(iso: str) -> tuple[str, str]:
+    """Return (human-readable age, css-color) based on data age."""
     try:
         delta = datetime.now() - datetime.fromisoformat(iso)
         mins  = int(delta.total_seconds() / 60)
         if mins < 1:
-            return "tikko atjaunots"
+            return "tikko atjaunots", "#00ff7f"
         if mins < 60:
-            return f"atjaunots {mins} min. atpakaļ"
+            return f"{mins} min. atpakaļ", "#00ff7f"
         hours = mins // 60
-        return f"atjaunots {hours} h atpakaļ"
+        if hours < 5:
+            return f"{hours} h atpakaļ", "#facc15"
+        return f"{hours} h atpakaļ", "#f87171"
     except Exception:
-        return "nezināms laiks"
+        return "nezināms laiks", "#9ca3af"
 
 
 def _run_scraper(args: list[str]) -> tuple[bool, str]:
@@ -734,7 +737,7 @@ def build_card_html(
     amenities_html = "".join(
         AMENITY_ICONS[a] for a in station.get("amenities", []) if a in AMENITY_ICONS
     )
-    fresh     = _freshness(station.get("scraped_at", ""))
+    fresh, _  = _freshness(station.get("scraped_at", ""))
     has_error = bool(station.get("error"))
 
     # ── Logo ────────────────────────────────────────────────────────────────
@@ -998,15 +1001,26 @@ def main() -> None:
             ts = datetime.fromisoformat(scraped_at).strftime("%d.%m.%Y %H:%M")
         except Exception:
             ts = scraped_at
-        # Show how many stations have a scrape error
-        n_errors = sum(1 for s in stations.values() if s.get("error"))
-        err_note  = (
-            f' · <span style="color:#ff6b6b;">{n_errors} stacija(s) ar kļūdu</span>'
+        age_text, age_color = _freshness(scraped_at)
+        n_errors  = sum(1 for s in stations.values() if s.get("error"))
+        err_badge = (
+            f'<span style="background:#3f1515;color:#f87171;border-radius:6px;'
+            f'padding:2px 10px;font-size:.8rem;margin-left:8px;">'
+            f'⚠ {n_errors} kļūda</span>'
             if n_errors else ""
         )
         st.markdown(
-            f'<p style="font-size:.72rem;color:#4b5563;margin-bottom:16px;">'
-            f'Pēdējā atjaunošana: {ts}{err_note}</p>',
+            f'<div style="display:flex;align-items:center;gap:8px;'
+            f'margin-bottom:18px;flex-wrap:wrap;">'
+            f'  <span style="font-size:.85rem;color:#6b7280;">🕐 Cenas atjaunotas:</span>'
+            f'  <span style="font-size:.9rem;color:#e5e7eb;font-weight:600;">{ts}</span>'
+            f'  <span style="font-size:.8rem;color:{age_color};'
+            f'  background:rgba(255,255,255,.06);border-radius:6px;padding:2px 10px;">'
+            f'  {age_text}</span>'
+            f'  {err_badge}'
+            f'  <span style="font-size:.75rem;color:#4b5563;margin-left:4px;">'
+            f'  · atjaunojas automātiski ik pēc 4 h</span>'
+            f'</div>',
             unsafe_allow_html=True,
         )
 

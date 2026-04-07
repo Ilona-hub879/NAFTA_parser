@@ -1,0 +1,61 @@
+name: 🛢 Scrape fuel prices
+
+# ── Triggers ────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    # Every 4 hours (UTC): 00:00 04:00 08:00 12:00 16:00 20:00
+    - cron: '0 */4 * * *'
+  workflow_dispatch:     # allows manual "Run workflow" from GitHub UI
+
+# ── Job ─────────────────────────────────────────────────────────────────────
+jobs:
+  scrape:
+    name: Update prices
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write    # needed to git-push prices.json back to the repo
+
+    steps:
+      # 1. Check out the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Set up Python 3.11
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # 3. Install Python dependencies
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # 4. Install Chromium + system libs required by Playwright
+      #    --with-deps installs libglib, libnss, libatk etc. automatically
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      # 5. Create data/ folder if it doesn't exist
+      - name: Prepare data directory
+        run: mkdir -p data
+
+      # 6. Run the scraper (HTTP-first, Playwright for Virsi SPA)
+      - name: Run scraper
+        run: python scraper.py
+
+      # 7. Commit updated prices.json back to the repository
+      #    Only commits if the file actually changed (git diff --staged --quiet)
+      - name: Commit prices.json
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name  "github-actions[bot]"
+          git add data/prices.json
+          git diff --staged --quiet && echo "No changes" || (
+            git commit -m "data: update fuel prices $(date -u '+%Y-%m-%d %H:%M UTC')" &&
+            git push
+          )

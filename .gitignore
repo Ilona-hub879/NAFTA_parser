@@ -51,14 +51,12 @@ Description of Task.docx
 # Playwright browser binaries
 playwright-browsers/
 
-# Scraped data (generated at runtime — not stored in repo)
-data/prices.json
+# data/prices.json is intentionally TRACKED — updated by GitHub Actions
+# every 4 hours so Streamlit Cloud always has current prices.
+# data/prices.json  ← do NOT add this line
 
 # Debug screenshots from scraper --debug
 data/debug_*.png
 
 # Streamlit runtime state
 .streamlit/secrets.toml
-
-prices.json
-data/
