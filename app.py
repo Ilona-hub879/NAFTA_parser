@@ -179,6 +179,18 @@ def load_data() -> tuple[dict, str | None]:
     return data, None
 
 
+def _applicable_loyalties(station_id: str, selected_keys: list[str]) -> list[tuple[str, float]]:
+    """Return all selected loyalty cards that apply to the station."""
+    out: list[tuple[str, float]] = []
+    for key in selected_keys:
+        cfg = LOYALTY_OPTIONS.get(key)
+        if not cfg:
+            continue
+        if cfg.get("station") == station_id and float(cfg.get("discount", 0)) > 0:
+            out.append((key, float(cfg["discount"])))
+    return out
+
+
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Distance between two points on Earth in kilometers."""
     r = 6371.0
@@ -326,20 +338,66 @@ def render_nearby_stations_block() -> None:
 
     if "_geo_requested" not in st.session_state:
         st.session_state["_geo_requested"] = False
+    if "_geo_autoclick" not in st.session_state:
+        st.session_state["_geo_autoclick"] = False
 
     clicked = st.button(
         "ieslēdziet ģeolokāciju šeit",
         key="geo_activate_btn",
         use_container_width=True,
-        type="secondary",
+        type="primary",
+        icon="🎯",
     )
     if clicked:
         st.session_state["_geo_requested"] = True
+        st.session_state["_geo_autoclick"] = True
 
     if not st.session_state["_geo_requested"]:
         return
 
     location = streamlit_geolocation()
+
+    # Always hide component's default white button to keep only our designed one.
+    components.html(
+        """<script>
+(function hideGeoButton() {
+  try {
+    const doc = window.parent.document;
+    const iframes = Array.from(doc.querySelectorAll("iframe"));
+    for (const fr of iframes) {
+      let btn = null;
+      try { btn = fr.contentDocument && fr.contentDocument.querySelector("button"); } catch (e) {}
+      if (!btn) continue;
+      btn.style.display = "none";
+      break;
+    }
+  } catch (e) {}
+})();
+</script>""",
+        height=0,
+    )
+
+    # Trigger hidden component button from our custom design button.
+    if st.session_state.pop("_geo_autoclick", False):
+        components.html(
+            """<script>
+(function clickGeoButton() {
+  try {
+    const doc = window.parent.document;
+    const iframes = Array.from(doc.querySelectorAll("iframe"));
+    for (const fr of iframes) {
+      let btn = null;
+      try { btn = fr.contentDocument && fr.contentDocument.querySelector("button"); } catch (e) {}
+      if (!btn) continue;
+      btn.style.display = "none";
+      btn.click();
+      break;
+    }
+  } catch (e) {}
+})();
+</script>""",
+            height=0,
+        )
 
     # Not yet clicked / no data
     if not location or location.get("latitude") is None:
@@ -819,8 +877,8 @@ def inject_js() -> None:
 # Sidebar
 # ---------------------------------------------------------------------------
 
-def render_sidebar() -> tuple[str, str, list[str]]:
-    """Returns (selected_fuel, loyalty_card, amenity_filter)."""
+def render_sidebar() -> tuple[str, list[str], list[str]]:
+    """Returns (selected_fuel, loyalty_cards, amenity_filter)."""
 
     # Brand
     fav_b64 = _b64("images/favikon.jpg")
@@ -858,14 +916,18 @@ def render_sidebar() -> tuple[str, str, list[str]]:
 
     st.sidebar.markdown("---")
 
-    # Loyalty card
+    # Loyalty cards (multi-select)
     st.sidebar.markdown(
         '<p style="font-size:.72rem;color:#6b7280;text-transform:uppercase;'
         'letter-spacing:.1em;margin-bottom:4px;">🎁 Lojalitātes karte</p>',
         unsafe_allow_html=True,
     )
-    loyalty_choice = st.sidebar.selectbox(
-        "loyalty", list(LOYALTY_OPTIONS.keys()), label_visibility="collapsed"
+    loyalty_keys = [k for k in LOYALTY_OPTIONS.keys() if k != "Nav kartes"]
+    loyalty_choice = st.sidebar.multiselect(
+        "loyalty",
+        loyalty_keys,
+        default=[],
+        label_visibility="collapsed",
     )
 
     st.sidebar.markdown("---")
@@ -924,11 +986,10 @@ def build_card_html(
     station_id: str,
     station: dict,
     fuel: str,
-    loyalty_key: str,
+    loyalty_keys: list[str],
 ) -> str:
     """Return the complete HTML for one station card."""
     price       = station["prices"].get(fuel)
-    loyalty     = LOYALTY_OPTIONS[loyalty_key]
     logo_b64    = _b64(station["logo"])
     trend_key   = station.get("trends", {}).get(fuel, "stable")
     trend_icon, trend_color = TREND_DATA.get(trend_key, ("→", "#9ca3af"))
@@ -953,19 +1014,14 @@ def build_card_html(
         error_html = f'<div class="error-badge">⚠ {err_short}</div>'
 
     # ── Price block ─────────────────────────────────────────────────────────
-    discount_amount = (
-        loyalty["discount"]
-        if price is not None and loyalty["station"] == station_id and loyalty["discount"] > 0
-        else 0.0
-    )
-    has_discount = discount_amount > 0
+    card_discounts = _applicable_loyalties(station_id, loyalty_keys)
+    has_discount = len(card_discounts) > 0
 
     if price is None:
         price_html    = '<div class="no-data">Cena nav pieejama</div>'
         discount_html = ""
         gift_html     = ""
     else:
-        discounted = round(price - discount_amount, 3)
         price_html = (
             f'<div class="price-main">{price:.3f}'
             f'<span class="price-unit"> €/l</span>'
@@ -973,15 +1029,19 @@ def build_card_html(
             f'</div>'
         )
         if has_discount:
-            discount_html = (
-                f'<div class="price-discount">{discounted:.3f} €/l</div>'
-                f'<div class="gift-row">ar kartes atlaidi</div>'
-            )
-            gift_html = (
-                f'<div class="gift-badge">'
-                f'🎁 Izdevīgāk par {discount_amount:.2f}€ — {loyalty_key}'
-                f'</div>'
-            )
+            discount_rows = []
+            gift_rows = []
+            for card_name, discount_amount in card_discounts:
+                discounted = round(price - discount_amount, 3)
+                discount_rows.append(
+                    f'<div class="price-discount">{discounted:.3f} €/l '
+                    f'<span style="font-size:.8rem;color:#9ca3af;">({card_name})</span></div>'
+                )
+                gift_rows.append(
+                    f'<div class="gift-badge">🎁 -{discount_amount:.3f} €/l — {card_name}</div>'
+                )
+            discount_html = "".join(discount_rows) + '<div class="gift-row">ar izvēlētajām kartēm</div>'
+            gift_html = "".join(gift_rows)
         else:
             discount_html = ""
             gift_html     = ""
@@ -1033,7 +1093,7 @@ def build_card_html(
 # Analytics block
 # ---------------------------------------------------------------------------
 
-def render_analytics(stations: dict, fuel: str, loyalty_key: str) -> None:
+def render_analytics(stations: dict, fuel: str, loyalty_keys: list[str]) -> None:
     st.markdown(
         '<hr style="border-color:rgba(255,255,255,.05);margin:8px 0 20px;">',
         unsafe_allow_html=True,
@@ -1074,9 +1134,9 @@ def render_analytics(stations: dict, fuel: str, loyalty_key: str) -> None:
     medals = ["🥇", "🥈", "🥉"]
     top_cols = st.columns(min(3, len(sorted_stations)))
     for i, (sid, price, name) in enumerate(sorted_stations[:3]):
-        loyalty = LOYALTY_OPTIONS[loyalty_key]
-        discount = loyalty["discount"] if loyalty["station"] == sid else 0.0
-        net_price = round(price - discount, 3)
+        card_discounts = _applicable_loyalties(sid, loyalty_keys)
+        best_discount = max((d for _, d in card_discounts), default=0.0)
+        net_price = round(price - best_discount, 3)
         logo_b64 = _b64(stations[sid]["logo"])
         logo_tag = (
             f'<img src="{logo_b64}" style="width:60px;height:30px;'
@@ -1085,8 +1145,11 @@ def render_analytics(stations: dict, fuel: str, loyalty_key: str) -> None:
         )
         extra = (
             f'<div style="font-size:.75rem;color:#00ff7f;">'
-            f'ar karti: {net_price:.3f} €/l</div>'
-            if discount > 0 else ""
+            f'ar kartēm: {net_price:.3f} €/l</div>'
+            f'<div style="font-size:.68rem;color:#6b7280;">'
+            f'{", ".join(k for k, _ in card_discounts[:2])}'
+            f'{"…" if len(card_discounts) > 2 else ""}</div>'
+            if best_discount > 0 else ""
         )
         top_cols[i].markdown(
             f'<div class="analytic-box">'
@@ -1142,7 +1205,7 @@ def main() -> None:
     )
 
     # ── Sidebar ──────────────────────────────────────────────────────────────
-    selected_fuel, loyalty_key, amenity_filter = render_sidebar()
+    selected_fuel, loyalty_keys, amenity_filter = render_sidebar()
 
     # ── Auto-bootstrap: generate demo data if prices.json is missing ─────────
     was_bootstrapped = bootstrap_if_needed()
@@ -1228,7 +1291,7 @@ def main() -> None:
         return
 
     cards_html = "\n".join(
-        build_card_html(sid, s, selected_fuel, loyalty_key)
+        build_card_html(sid, s, selected_fuel, loyalty_keys)
         for sid, s in sorted_stations
     )
     st.markdown(
@@ -1237,7 +1300,7 @@ def main() -> None:
     )
 
     # ── Analytics ────────────────────────────────────────────────────────────
-    render_analytics(stations, selected_fuel, loyalty_key)
+    render_analytics(stations, selected_fuel, loyalty_keys)
     st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
     render_nearby_stations_block()
 
