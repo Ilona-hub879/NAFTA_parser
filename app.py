@@ -13,9 +13,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib import error as urlerror
-from urllib import parse as urlparse
 from urllib import request as urlrequest
-
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -197,53 +195,75 @@ def _google_nearby_gas_stations(
     lat: float, lng: float, *, radius_m: int = 5000, limit: int = 10
 ) -> tuple[list[dict], str | None]:
     """
-    Fetch nearby gas stations from Google Places Nearby Search API.
-    Returns (stations, error_message).
+    Fetch nearby gas stations using Places API (New) — Nearby Search.
+    POST https://places.googleapis.com/v1/places:searchNearby
+    Required for projects created after June 2024.
+    Returns (stations_list, error_message | None).
     """
     api_key = st.secrets.get("GOOGLE_PLACES_API_KEY")
     if not api_key:
-        return [], "Trūkst `GOOGLE_PLACES_API_KEY` iekš Streamlit secrets."
+        return [], (
+            "Google Places API nav konfigurēts. "
+            "Pievienojiet `GOOGLE_PLACES_API_KEY` Streamlit Secrets."
+        )
 
-    params = {
-        "location": f"{lat},{lng}",
-        "radius": str(radius_m),
-        "type": "gas_station",
-        "language": "lv",
-        "key": str(api_key),
-    }
-    url = (
-        "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
-        + urlparse.urlencode(params)
+    url  = "https://places.googleapis.com/v1/places:searchNearby"
+    body = json.dumps({
+        "includedTypes":     ["gas_station"],
+        "maxResultCount":    min(limit, 20),
+        "languageCode":      "lv",
+        "locationRestriction": {
+            "circle": {
+                "center": {"latitude": lat, "longitude": lng},
+                "radius": float(radius_m),
+            }
+        },
+    }).encode("utf-8")
+
+    # Field mask — only request the fields we actually use
+    field_mask = "places.displayName,places.location,places.formattedAddress,places.rating"
+
+    req = urlrequest.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={
+            "Content-Type":     "application/json",
+            "X-Goog-Api-Key":   str(api_key),
+            "X-Goog-FieldMask": field_mask,
+        },
     )
-    req = urlrequest.Request(url, headers={"User-Agent": "NAFTA_APP/1.0"})
 
     try:
         with urlrequest.urlopen(req, timeout=12) as resp:
             payload = json.loads(resp.read().decode("utf-8", errors="replace"))
+    except urlerror.HTTPError as exc:
+        body_txt = exc.read().decode("utf-8", errors="replace")[:300]
+        return [], f"Google Places HTTP {exc.code}: {body_txt}"
     except urlerror.URLError as exc:
-        return [], f"Google Places pieprasījuma kļūda: {exc}"
+        return [], f"Google Places savienojuma kļūda: {exc}"
     except Exception as exc:
         return [], f"Neizdevās nolasīt Google Places atbildi: {exc}"
 
-    status = payload.get("status", "")
-    if status not in {"OK", "ZERO_RESULTS"}:
-        return [], f"Google Places API statuss: {status}"
-
-    places = payload.get("results", []) or []
+    places = payload.get("places") or []
     out: list[dict] = []
     for p in places:
-        geo = (p.get("geometry") or {}).get("location") or {}
-        plat, plng = geo.get("lat"), geo.get("lng")
+        loc   = p.get("location") or {}
+        plat  = loc.get("latitude")
+        plng  = loc.get("longitude")
         if plat is None or plng is None:
             continue
-        out.append(
-            {
-                "name": p.get("name", "Nezināma DUS"),
-                "address": p.get("vicinity") or p.get("formatted_address") or "",
-                "distance_km": round(_haversine_km(lat, lng, float(plat), float(plng)), 2),
-                "rating": p.get("rating"),
-            }
+        name = (
+            (p.get("displayName") or {}).get("text")
+            or p.get("name")
+            or "Nezināma DUS"
         )
+        out.append({
+            "name":        name,
+            "address":     p.get("formattedAddress") or "",
+            "distance_km": round(_haversine_km(lat, lng, float(plat), float(plng)), 2),
+            "rating":      p.get("rating"),
+        })
     out.sort(key=lambda x: x["distance_km"])
     return out[:limit], None
 
