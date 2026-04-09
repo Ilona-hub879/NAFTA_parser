@@ -13,6 +13,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib import error as urlerror
+from urllib import parse as urlparse
 from urllib import request as urlrequest
 
 import streamlit as st
@@ -192,7 +193,7 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def _google_nearby_gas_stations(
-    lat: float, lng: float, *, radius_m: int = 5000, limit: int = 10
+    lat: float, lng: float, *, radius_m: int = 2000, limit: int = 10
 ) -> tuple[list[dict], str | None]:
     """
     Fetch nearby gas stations using Places API (New) — Nearby Search.
@@ -280,7 +281,7 @@ def render_nearby_stations_block() -> None:
         '<div class="section-header">// Tuvākās <span class="accent">DUS</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu · rādiuss: 5000 m.")
+    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu · rādiuss: 2000 m.")
 
     location = streamlit_geolocation()
 
@@ -296,7 +297,7 @@ def render_nearby_stations_block() -> None:
 
     with st.spinner("Meklēju tuvākās DUS..."):
         stations, api_error = _google_nearby_gas_stations(
-            lat, lng, radius_m=5000, limit=10
+            lat, lng, radius_m=2000, limit=10
         )
 
     if api_error:
@@ -308,9 +309,23 @@ def render_nearby_stations_block() -> None:
 
     for i, s in enumerate(stations, start=1):
         rating = f" · ⭐ {s['rating']}" if s.get("rating") else ""
+        addr = s.get("address", "")
+        maps_query = urlparse.quote_plus(addr or s["name"])
+        maps_url = (
+            "https://www.google.com/maps/dir/?api=1"
+            f"&origin={lat:.6f},{lng:.6f}"
+            f"&destination={maps_query}"
+            "&travelmode=driving"
+        )
         st.markdown(
             f"{i}. **{s['name']}** — {s['distance_km']:.2f} km{rating}<br>"
-            f"<span style='color:#9ca3af'>{s['address']}</span>",
+            f"<a href='{maps_url}' target='_blank' "
+            f"style='color:#8ab4f8;text-decoration:underline;margin-right:10px;'>"
+            f"{addr or 'Atvērt kartē'}</a>"
+            f"<a href='{maps_url}' target='_blank' "
+            f"style='display:inline-block;background:#0b5f31;color:#eafff2;"
+            f"padding:2px 10px;border-radius:6px;text-decoration:none;font-size:.8rem;'>"
+            f"🧭 Navigēt</a>",
             unsafe_allow_html=True,
         )
 
