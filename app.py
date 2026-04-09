@@ -6,11 +6,15 @@ Design: DESIGN_SYSTEM.md (anthracite / emerald palette, Syne + Inter fonts).
 
 import base64
 import json
+import math
 import os
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+from urllib import error as urlerror
+from urllib import parse as urlparse
+from urllib import request as urlrequest
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -173,6 +177,174 @@ def load_data() -> tuple[dict, str | None]:
         return {}, "Nepareizs datu formāts — trūkst `stations` atslēgas."
 
     return data, None
+
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Distance between two points on Earth in kilometers."""
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(p1) * math.cos(p2) * math.sin(dlon / 2) ** 2
+    )
+    return r * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
+
+
+def _google_nearby_gas_stations(
+    lat: float, lng: float, *, radius_m: int = 5000, limit: int = 10
+) -> tuple[list[dict], str | None]:
+    """
+    Fetch nearby gas stations from Google Places Nearby Search API.
+    Returns (stations, error_message).
+    """
+    api_key = st.secrets.get("GOOGLE_PLACES_API_KEY")
+    if not api_key:
+        return [], "Trūkst `GOOGLE_PLACES_API_KEY` iekš Streamlit secrets."
+
+    params = {
+        "location": f"{lat},{lng}",
+        "radius": str(radius_m),
+        "type": "gas_station",
+        "language": "lv",
+        "key": str(api_key),
+    }
+    url = (
+        "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
+        + urlparse.urlencode(params)
+    )
+    req = urlrequest.Request(url, headers={"User-Agent": "NAFTA_APP/1.0"})
+
+    try:
+        with urlrequest.urlopen(req, timeout=12) as resp:
+            payload = json.loads(resp.read().decode("utf-8", errors="replace"))
+    except urlerror.URLError as exc:
+        return [], f"Google Places pieprasījuma kļūda: {exc}"
+    except Exception as exc:
+        return [], f"Neizdevās nolasīt Google Places atbildi: {exc}"
+
+    status = payload.get("status", "")
+    if status not in {"OK", "ZERO_RESULTS"}:
+        return [], f"Google Places API statuss: {status}"
+
+    places = payload.get("results", []) or []
+    out: list[dict] = []
+    for p in places:
+        geo = (p.get("geometry") or {}).get("location") or {}
+        plat, plng = geo.get("lat"), geo.get("lng")
+        if plat is None or plng is None:
+            continue
+        out.append(
+            {
+                "name": p.get("name", "Nezināma AZS"),
+                "address": p.get("vicinity") or p.get("formatted_address") or "",
+                "distance_km": round(_haversine_km(lat, lng, float(plat), float(plng)), 2),
+                "rating": p.get("rating"),
+            }
+        )
+    out.sort(key=lambda x: x["distance_km"])
+    return out[:limit], None
+
+
+def _inject_geolocation_capture() -> None:
+    """
+    Render a small JS component that requests browser geolocation and writes
+    result to query params: glat, glng, geo_status.
+    """
+    components.html(
+        """
+<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
+  <button id="geo-btn"
+    style="border:1px solid #00ff7f;background:#072814;color:#00ff7f;
+           border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer;">
+    📍 Atrast tuvākās AZS
+  </button>
+  <span id="geo-msg" style="color:#9ca3af;font-size:12px;"></span>
+</div>
+<script>
+(function() {
+  const btn = document.getElementById("geo-btn");
+  const msg = document.getElementById("geo-msg");
+  if (!btn) return;
+  btn.onclick = function() {
+    if (!navigator.geolocation) {
+      msg.textContent = "Geolocation nav pieejams";
+      return;
+    }
+    msg.textContent = "Meklēju atrašanās vietu...";
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        const parentUrl = new URL(window.parent.location.href);
+        parentUrl.searchParams.set("glat", lat);
+        parentUrl.searchParams.set("glng", lng);
+        parentUrl.searchParams.set("geo_status", "ok");
+        parentUrl.searchParams.set("geo_ts", String(Date.now()));
+        window.parent.location.href = parentUrl.toString();
+      },
+      function() {
+        const parentUrl = new URL(window.parent.location.href);
+        parentUrl.searchParams.set("geo_status", "denied");
+        parentUrl.searchParams.set("geo_ts", String(Date.now()));
+        window.parent.location.href = parentUrl.toString();
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+    );
+  };
+})();
+</script>
+""",
+        height=62,
+    )
+
+
+def render_nearby_stations_block() -> None:
+    """Render browser-geolocation + Google Places nearest stations block."""
+    st.markdown(
+        '<div class="section-header">// Tuvākās <span class="accent">AZS</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu (rādiuss: 5000 m).")
+
+    _inject_geolocation_capture()
+
+    params = st.query_params
+    geo_status = str(params.get("geo_status", ""))
+    glat = params.get("glat")
+    glng = params.get("glng")
+
+    if geo_status == "denied":
+        st.warning("ieslēdziet ģeolokāciju")
+        return
+
+    if not glat or not glng:
+        st.info("Nospiediet **📍 Atrast tuvākās AZS**.")
+        return
+
+    try:
+        lat = float(glat)
+        lng = float(glng)
+    except Exception:
+        st.warning("Nederīgas koordinātas no pārlūka.")
+        return
+
+    stations, api_error = _google_nearby_gas_stations(lat, lng, radius_m=5000, limit=10)
+    if api_error:
+        st.warning(api_error)
+        return
+    if not stations:
+        st.info("Tuvumā AZS netika atrastas.")
+        return
+
+    for i, s in enumerate(stations, start=1):
+        rating = f" · ⭐ {s['rating']}" if s.get("rating") else ""
+        st.markdown(
+            f"{i}. **{s['name']}** — {s['distance_km']:.2f} km{rating}<br>"
+            f"<span style='color:#9ca3af'>{s['address']}</span>",
+            unsafe_allow_html=True,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1027,6 +1199,8 @@ def main() -> None:
 
     # ── Analytics ────────────────────────────────────────────────────────────
     render_analytics(stations, selected_fuel, loyalty_key)
+    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
+    render_nearby_stations_block()
 
 
 if __name__ == "__main__":
