@@ -814,7 +814,7 @@ def inject_js() -> None:
                 if (!fdoc) return;
                 var btn = fdoc.querySelector('button');
                 if (!btn || btn.dataset.geoStyled === '1') return;
-                btn.textContent = '\uD83C\uDFAF ieslēdziet ģeolokāciju šeit';
+                btn.textContent = '🎯 ieslēdziet ģeolokāciju šeit';
                 btn.style.cssText = [
                     'width:100%',
                     'padding:10px 14px',
