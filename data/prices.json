@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-09T13:22:09.072970",
+  "scraped_at": "2026-04-09T17:05:38.690474",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -9,7 +9,7 @@
       "prices": {
         "95": 1.854,
         "98": 1.924,
-        "D": 2.184,
+        "D": 2.144,
         "LPG": 1.085
       },
       "discounts": {
@@ -25,11 +25,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable",
+        "D": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T13:22:09.072937"
+      "scraped_at": "2026-04-09T17:05:38.690440"
     },
     "neste": {
       "name": "Neste",
@@ -39,7 +39,7 @@
       "prices": {
         "95": 1.837,
         "98": 1.907,
-        "D": 2.167
+        "D": 2.127
       },
       "discounts": {
         "Neste Card": 0.06
@@ -51,10 +51,10 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T13:22:09.072949"
+      "scraped_at": "2026-04-09T17:05:38.690452"
     },
     "viada": {
       "name": "Viada",
@@ -80,10 +80,10 @@
         "95": "stable",
         "98": "stable",
         "D": "stable",
-        "LPG": "down"
+        "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T13:22:09.072954"
+      "scraped_at": "2026-04-09T17:05:38.690458"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T13:22:09.072958"
+      "scraped_at": "2026-04-09T17:05:38.690463"
     }
   }
 }
