@@ -222,7 +222,12 @@ def _google_nearby_gas_stations(
     }).encode("utf-8")
 
     # Field mask — only request the fields we actually use
-    field_mask = "places.displayName,places.location,places.formattedAddress,places.rating"
+    # userRatingCount is used to pick the "popular" name when the same address
+    # appears multiple times under different place names.
+    field_mask = (
+        "places.displayName,places.location,places.formattedAddress,"
+        "places.rating,places.userRatingCount"
+    )
 
     req = urlrequest.Request(
         url,
@@ -247,7 +252,14 @@ def _google_nearby_gas_stations(
         return [], f"Neizdevās nolasīt Google Places atbildi: {exc}"
 
     places = payload.get("places") or []
-    out: list[dict] = []
+
+    def _norm_addr(addr: str) -> str:
+        return " ".join(addr.lower().replace(",", " ").split())
+
+    # De-duplicate by address:
+    # keep the most "popular" entry (higher userRatingCount, then rating),
+    # fallback tie-breaker: nearer distance.
+    by_addr: dict[str, dict] = {}
     for p in places:
         loc   = p.get("location") or {}
         plat  = loc.get("latitude")
@@ -259,12 +271,41 @@ def _google_nearby_gas_stations(
             or p.get("name")
             or "Nezināma DUS"
         )
-        out.append({
+        address = p.get("formattedAddress") or ""
+        distance_km = round(_haversine_km(lat, lng, float(plat), float(plng)), 2)
+        rating = p.get("rating")
+        user_count = int(p.get("userRatingCount") or 0)
+        item = {
             "name":        name,
-            "address":     p.get("formattedAddress") or "",
-            "distance_km": round(_haversine_km(lat, lng, float(plat), float(plng)), 2),
-            "rating":      p.get("rating"),
-        })
+            "address":     address,
+            "distance_km": distance_km,
+            "rating":      rating,
+            "_user_count": user_count,
+        }
+
+        key = _norm_addr(address) if address else f"{name.lower()}::{plat:.6f},{plng:.6f}"
+        existing = by_addr.get(key)
+        if not existing:
+            by_addr[key] = item
+            continue
+
+        existing_score = (
+            int(existing.get("_user_count", 0)),
+            float(existing.get("rating") or 0.0),
+            -float(existing.get("distance_km") or 9999.0),
+        )
+        new_score = (
+            user_count,
+            float(rating or 0.0),
+            -distance_km,
+        )
+        if new_score > existing_score:
+            by_addr[key] = item
+
+    out = [
+        {k: v for k, v in item.items() if k != "_user_count"}
+        for item in by_addr.values()
+    ]
     out.sort(key=lambda x: x["distance_km"])
     return out[:limit], None
 
