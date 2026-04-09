@@ -16,6 +16,7 @@ from urllib import error as urlerror
 from urllib import parse as urlparse
 from urllib import request as urlrequest
 
+
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -237,7 +238,7 @@ def _google_nearby_gas_stations(
             continue
         out.append(
             {
-                "name": p.get("name", "Nezināma AZS"),
+                "name": p.get("name", "Nezināma DUS"),
                 "address": p.get("vicinity") or p.get("formatted_address") or "",
                 "distance_km": round(_haversine_km(lat, lng, float(plat), float(plng)), 2),
                 "rating": p.get("rating"),
@@ -247,95 +248,42 @@ def _google_nearby_gas_stations(
     return out[:limit], None
 
 
-def _inject_geolocation_capture() -> None:
-    """
-    Render a small JS component that requests browser geolocation and writes
-    result to query params: glat, glng, geo_status.
-    """
-    components.html(
-        """
-<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-  <button id="geo-btn"
-    style="border:1px solid #00ff7f;background:#072814;color:#00ff7f;
-           border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer;">
-    📍 Atrast tuvākās AZS
-  </button>
-  <span id="geo-msg" style="color:#9ca3af;font-size:12px;"></span>
-</div>
-<script>
-(function() {
-  const btn = document.getElementById("geo-btn");
-  const msg = document.getElementById("geo-msg");
-  if (!btn) return;
-  btn.onclick = function() {
-    if (!navigator.geolocation) {
-      msg.textContent = "Geolocation nav pieejams";
-      return;
-    }
-    msg.textContent = "Meklēju atrašanās vietu...";
-    navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lng = pos.coords.longitude.toFixed(6);
-        const parentUrl = new URL(window.parent.location.href);
-        parentUrl.searchParams.set("glat", lat);
-        parentUrl.searchParams.set("glng", lng);
-        parentUrl.searchParams.set("geo_status", "ok");
-        parentUrl.searchParams.set("geo_ts", String(Date.now()));
-        window.parent.location.href = parentUrl.toString();
-      },
-      function() {
-        const parentUrl = new URL(window.parent.location.href);
-        parentUrl.searchParams.set("geo_status", "denied");
-        parentUrl.searchParams.set("geo_ts", String(Date.now()));
-        window.parent.location.href = parentUrl.toString();
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-    );
-  };
-})();
-</script>
-""",
-        height=62,
-    )
-
-
 def render_nearby_stations_block() -> None:
-    """Render browser-geolocation + Google Places nearest stations block."""
+    """
+    Render nearest gas stations block.
+    Uses streamlit-geolocation component (proper Streamlit bidirectional
+    communication — no iframe sandbox restrictions).
+    """
+    from streamlit_geolocation import streamlit_geolocation  # lazy import
+
     st.markdown(
-        '<div class="section-header">// Tuvākās <span class="accent">AZS</span></div>',
+        '<div class="section-header">// Tuvākās <span class="accent">DUS</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu (rādiuss: 5000 m).")
+    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu · rādiuss: 5000 m.")
 
-    _inject_geolocation_capture()
+    location = streamlit_geolocation()
 
-    params = st.query_params
-    geo_status = str(params.get("geo_status", ""))
-    glat = params.get("glat")
-    glng = params.get("glng")
-
-    if geo_status == "denied":
-        st.warning("ieslēdziet ģeolokāciju")
+    # Not yet clicked / no data
+    if not location or location.get("latitude") is None:
+        if location is not None and location.get("latitude") is None:
+            # Button was clicked but coords are null → permission denied
+            st.warning("ieslēdziet ģeolokāciju")
         return
 
-    if not glat or not glng:
-        st.info("Nospiediet **📍 Atrast tuvākās AZS**.")
-        return
+    lat = float(location["latitude"])
+    lng = float(location["longitude"])
 
-    try:
-        lat = float(glat)
-        lng = float(glng)
-    except Exception:
-        st.warning("Nederīgas koordinātas no pārlūka.")
-        return
+    with st.spinner("Meklēju tuvākās DUS..."):
+        stations, api_error = _google_nearby_gas_stations(
+            lat, lng, radius_m=5000, limit=10
+        )
 
-    stations, api_error = _google_nearby_gas_stations(lat, lng, radius_m=5000, limit=10)
     if api_error:
         st.warning(api_error)
         return
     if not stations:
-        st.info("Tuvumā AZS netika atrastas.")
+        st.info("Tuvumā DUS netika atrastas.")
         return
 
     for i, s in enumerate(stations, start=1):

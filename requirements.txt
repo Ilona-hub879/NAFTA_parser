@@ -12,3 +12,5 @@ playwright==1.58.0          # headless Chromium (optional on Streamlit Cloud)
 
 # ── Dashboard ──────────────────────────────────────────────────────────────
 streamlit==1.56.0           # web UI (app.py)
+streamlit-geolocation==0.0.10  # browser geolocation component (nearest DUS block)
+ atra
