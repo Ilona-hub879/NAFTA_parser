@@ -336,31 +336,13 @@ def render_nearby_stations_block() -> None:
     )
     st.caption("Balstīts uz jūsu pārlūka atrašanās vietu · rādiuss: 3500 m.")
 
-    if "_geo_requested" not in st.session_state:
-        st.session_state["_geo_requested"] = False
-    if "_geo_autoclick" not in st.session_state:
-        st.session_state["_geo_autoclick"] = False
-
-    clicked = st.button(
-        "ieslēdziet ģeolokāciju šeit",
-        key="geo_activate_btn",
-        use_container_width=True,
-        type="primary",
-        icon="🎯",
-    )
-    if clicked:
-        st.session_state["_geo_requested"] = True
-        st.session_state["_geo_autoclick"] = True
-
-    if not st.session_state["_geo_requested"]:
-        return
-
     location = streamlit_geolocation()
 
-    # Always hide component's default white button to keep only our designed one.
+    # Re-style the component's own functional button to match app design.
+    # This keeps a single click flow: one button -> browser geolocation prompt.
     components.html(
         """<script>
-(function hideGeoButton() {
+(function styleGeoButton() {
   try {
     const doc = window.parent.document;
     const iframes = Array.from(doc.querySelectorAll("iframe"));
@@ -368,7 +350,17 @@ def render_nearby_stations_block() -> None:
       let btn = null;
       try { btn = fr.contentDocument && fr.contentDocument.querySelector("button"); } catch (e) {}
       if (!btn) continue;
-      btn.style.display = "none";
+      btn.textContent = "🎯 ieslēdziet ģeolokāciju šeit";
+      btn.style.width = "100%";
+      btn.style.padding = "10px 14px";
+      btn.style.borderRadius = "10px";
+      btn.style.border = "1px solid #00ff7f";
+      btn.style.background = "linear-gradient(180deg, #0f5132, #0a3f27)";
+      btn.style.color = "#eafff2";
+      btn.style.fontWeight = "700";
+      btn.style.fontFamily = "Inter, sans-serif";
+      btn.style.cursor = "pointer";
+      btn.style.boxShadow = "0 8px 24px rgba(0,0,0,.25)";
       break;
     }
   } catch (e) {}
@@ -376,28 +368,6 @@ def render_nearby_stations_block() -> None:
 </script>""",
         height=0,
     )
-
-    # Trigger hidden component button from our custom design button.
-    if st.session_state.pop("_geo_autoclick", False):
-        components.html(
-            """<script>
-(function clickGeoButton() {
-  try {
-    const doc = window.parent.document;
-    const iframes = Array.from(doc.querySelectorAll("iframe"));
-    for (const fr of iframes) {
-      let btn = null;
-      try { btn = fr.contentDocument && fr.contentDocument.querySelector("button"); } catch (e) {}
-      if (!btn) continue;
-      btn.style.display = "none";
-      btn.click();
-      break;
-    }
-  } catch (e) {}
-})();
-</script>""",
-            height=0,
-        )
 
     # Not yet clicked / no data
     if not location or location.get("latitude") is None:
