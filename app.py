@@ -193,7 +193,7 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def _google_nearby_gas_stations(
-    lat: float, lng: float, *, radius_m: int = 2000, limit: int = 10
+    lat: float, lng: float, *, radius_m: int = 3500, limit: int = 10
 ) -> tuple[list[dict], str | None]:
     """
     Fetch nearby gas stations using Places API (New) — Nearby Search.
@@ -322,7 +322,22 @@ def render_nearby_stations_block() -> None:
         '<div class="section-header">// Tuvākās <span class="accent">DUS</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu · rādiuss: 2000 m.")
+    st.caption("Balstīts uz jūsu pārlūka atrašanās vietu · rādiuss: 3500 m.")
+
+    if "_geo_requested" not in st.session_state:
+        st.session_state["_geo_requested"] = False
+
+    clicked = st.button(
+        "ieslēdziet ģeolokāciju šeit",
+        key="geo_activate_btn",
+        use_container_width=True,
+        type="secondary",
+    )
+    if clicked:
+        st.session_state["_geo_requested"] = True
+
+    if not st.session_state["_geo_requested"]:
+        return
 
     location = streamlit_geolocation()
 
@@ -338,7 +353,7 @@ def render_nearby_stations_block() -> None:
 
     with st.spinner("Meklēju tuvākās DUS..."):
         stations, api_error = _google_nearby_gas_stations(
-            lat, lng, radius_m=2000, limit=10
+            lat, lng, radius_m=3500, limit=10
         )
 
     if api_error:
