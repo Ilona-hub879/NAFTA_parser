@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-09T09:05:10.028638",
+  "scraped_at": "2026-04-09T13:22:09.072970",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -25,11 +25,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "up",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T09:05:10.028598"
+      "scraped_at": "2026-04-09T13:22:09.072937"
     },
     "neste": {
       "name": "Neste",
@@ -51,10 +51,10 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "up"
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T09:05:10.028618"
+      "scraped_at": "2026-04-09T13:22:09.072949"
     },
     "viada": {
       "name": "Viada",
@@ -65,7 +65,7 @@
         "95": 1.727,
         "98": 1.832,
         "D": 1.997,
-        "LPG": 0.995
+        "LPG": 0.985
       },
       "discounts": {
         "Viada plus (līdz 70 l)": 0.025,
@@ -80,10 +80,10 @@
         "95": "stable",
         "98": "stable",
         "D": "stable",
-        "LPG": "stable"
+        "LPG": "down"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T09:05:10.028623"
+      "scraped_at": "2026-04-09T13:22:09.072954"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T09:05:10.028627"
+      "scraped_at": "2026-04-09T13:22:09.072958"
     }
   }
 }
