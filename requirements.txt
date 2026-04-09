@@ -1,16 +1,15 @@
-# ── Latvia Fuel Price Parser — Python dependencies ─────────────────────────
+# Latvia Fuel Price Parser — Python dependencies
 # Install:  pip install -r requirements.txt
 # Browsers: playwright install chromium
 #
 # Python >= 3.11 required (uses X | Y union types, match-case not needed)
 
-# ── Web scraping ───────────────────────────────────────────────────────────
+# Web scraping
 # HTTP parsing uses Python stdlib only (urllib, html, re) — no extra packages.
-# Playwright is used as best-effort for JS-heavy pages (Virši SPA);
-# if Chromium is unavailable on the deployment, Virši is skipped gracefully.
-playwright==1.58.0          # headless Chromium (optional on Streamlit Cloud)
+# Playwright is used as best-effort for JS-heavy pages (Virsi SPA);
+# if Chromium is unavailable on the deployment, Virsi is skipped gracefully.
+playwright==1.58.0
 
-# ── Dashboard ──────────────────────────────────────────────────────────────
-streamlit==1.56.0           # web UI (app.py)
-streamlit-geolocation==0.0.10  # browser geolocation component (nearest DUS block)
- atra
+# Dashboard
+streamlit==1.56.0
+streamlit-geolocation==0.0.10
