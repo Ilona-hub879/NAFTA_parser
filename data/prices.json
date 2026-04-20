@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-20T06:14:01.870356",
+  "scraped_at": "2026-04-20T09:57:18.679424",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,9 +7,9 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.784,
-        "98": 1.854,
-        "D": 2.054,
+        "95": 1.774,
+        "98": 1.844,
+        "D": 1.994,
         "LPG": 1.055
       },
       "discounts": {
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
+        "95": "down",
+        "98": "down",
+        "D": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T06:14:01.870319"
+      "scraped_at": "2026-04-20T09:57:18.679386"
     },
     "neste": {
       "name": "Neste",
@@ -39,7 +39,7 @@
       "prices": {
         "95": 1.767,
         "98": 1.837,
-        "D": 2.037
+        "D": 1.957
       },
       "discounts": {
         "Neste Card": 0.06
@@ -51,10 +51,10 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T06:14:01.870332"
+      "scraped_at": "2026-04-20T09:57:18.679401"
     },
     "viada": {
       "name": "Viada",
@@ -64,7 +64,7 @@
       "prices": {
         "95": 1.707,
         "98": 1.812,
-        "D": 1.937,
+        "D": 1.917,
         "LPG": 0.985
       },
       "discounts": {
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable",
+        "D": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T06:14:01.870336"
+      "scraped_at": "2026-04-20T09:57:18.679406"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T06:14:01.870341"
+      "scraped_at": "2026-04-20T09:57:18.679412"
     }
   }
 }
