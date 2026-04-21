@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-20T20:43:15.935028",
+  "scraped_at": "2026-04-21T02:24:13.883280",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.764,
-        "98": 1.834,
-        "D": 1.974,
-        "LPG": 1.055
+        "95": 1.734,
+        "98": 1.804,
+        "D": 1.904,
+        "LPG": 0.995
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
-        "LPG": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down",
+        "LPG": "down"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T20:43:15.934997"
+      "scraped_at": "2026-04-21T02:24:13.883248"
     },
     "neste": {
       "name": "Neste",
@@ -37,9 +37,9 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.767,
-        "98": 1.837,
-        "D": 1.957
+        "95": 1.717,
+        "98": 1.777,
+        "D": 1.887
       },
       "discounts": {
         "Neste Card": 0.06
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T20:43:15.935008"
+      "scraped_at": "2026-04-21T02:24:13.883259"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T20:43:15.935013"
+      "scraped_at": "2026-04-21T02:24:13.883264"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-20T20:43:15.935017"
+      "scraped_at": "2026-04-21T02:24:13.883268"
     }
   }
 }
