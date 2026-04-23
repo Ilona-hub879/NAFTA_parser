@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-23T06:05:00.841549",
+  "scraped_at": "2026-04-23T09:25:41.863178",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "down",
-        "98": "down",
-        "D": "down",
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-23T06:05:00.841508"
+      "scraped_at": "2026-04-23T09:25:41.863144"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-23T06:05:00.841524"
+      "scraped_at": "2026-04-23T09:25:41.863157"
     },
     "viada": {
       "name": "Viada",
@@ -64,7 +64,7 @@
       "prices": {
         "95": 1.707,
         "98": 1.812,
-        "D": 1.877,
+        "D": 1.827,
         "LPG": 0.985
       },
       "discounts": {
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable",
+        "D": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-23T06:05:00.841530"
+      "scraped_at": "2026-04-23T09:25:41.863162"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-23T06:05:00.841536"
+      "scraped_at": "2026-04-23T09:25:41.863166"
     }
   }
 }
