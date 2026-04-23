@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-22T20:53:03.819395",
+  "scraped_at": "2026-04-23T02:25:47.570936",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-22T20:53:03.819360"
+      "scraped_at": "2026-04-23T02:25:47.570902"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-22T20:53:03.819373"
+      "scraped_at": "2026-04-23T02:25:47.570915"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-22T20:53:03.819378"
+      "scraped_at": "2026-04-23T02:25:47.570920"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-22T20:53:03.819384"
+      "scraped_at": "2026-04-23T02:25:47.570925"
     }
   }
 }
