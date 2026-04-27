@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-27T06:26:38.511608",
+  "scraped_at": "2026-04-27T10:13:00.436501",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T06:26:38.511575"
+      "scraped_at": "2026-04-27T10:13:00.436429"
     },
     "neste": {
       "name": "Neste",
@@ -39,7 +39,7 @@
       "prices": {
         "95": 1.757,
         "98": 1.827,
-        "D": 1.887
+        "D": 1.897
       },
       "discounts": {
         "Neste Card": 0.06
@@ -51,10 +51,10 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable"
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T06:26:38.511587"
+      "scraped_at": "2026-04-27T10:13:00.436474"
     },
     "viada": {
       "name": "Viada",
@@ -62,9 +62,9 @@
       "url": "https://www.viada.lv/zemakas-degvielas-cenas/",
       "address": "15+ AZS Latvijā",
       "prices": {
-        "95": 1.707,
-        "98": 1.812,
-        "D": 1.827,
+        "95": 1.687,
+        "98": 1.792,
+        "D": 1.807,
         "LPG": 0.985
       },
       "discounts": {
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
+        "95": "down",
+        "98": "down",
+        "D": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T06:26:38.511592"
+      "scraped_at": "2026-04-27T10:13:00.436484"
     },
     "virsi": {
       "name": "Virši",
@@ -95,7 +95,7 @@
         "98": 1.844,
         "LPG": 1.085,
         "AdBlue": 0.845,
-        "D": 1.904
+        "D": 1.924
       },
       "discounts": {
         "Virši+": 0.05
@@ -110,10 +110,10 @@
         "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T06:26:38.511597"
+      "scraped_at": "2026-04-27T10:13:00.436490"
     }
   }
 }
