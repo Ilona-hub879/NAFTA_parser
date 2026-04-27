@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-27T10:13:00.436501",
+  "scraped_at": "2026-04-27T13:47:04.508376",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T10:13:00.436429"
+      "scraped_at": "2026-04-27T13:47:04.508344"
     },
     "neste": {
       "name": "Neste",
@@ -39,7 +39,7 @@
       "prices": {
         "95": 1.757,
         "98": 1.827,
-        "D": 1.897
+        "D": 1.887
       },
       "discounts": {
         "Neste Card": 0.06
@@ -51,10 +51,10 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "up"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T10:13:00.436474"
+      "scraped_at": "2026-04-27T13:47:04.508356"
     },
     "viada": {
       "name": "Viada",
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "down",
-        "98": "down",
-        "D": "down",
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T10:13:00.436484"
+      "scraped_at": "2026-04-27T13:47:04.508360"
     },
     "virsi": {
       "name": "Virši",
@@ -110,10 +110,10 @@
         "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "up"
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-27T10:13:00.436490"
+      "scraped_at": "2026-04-27T13:47:04.508365"
     }
   }
 }
