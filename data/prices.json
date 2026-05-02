@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-02T13:05:10.400269",
+  "scraped_at": "2026-05-02T16:43:23.658710",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-02T13:05:10.400235"
+      "scraped_at": "2026-05-02T16:43:23.658676"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-02T13:05:10.400247"
+      "scraped_at": "2026-05-02T16:43:23.658689"
     },
     "viada": {
       "name": "Viada",
@@ -62,8 +62,8 @@
       "url": "https://www.viada.lv/zemakas-degvielas-cenas/",
       "address": "15+ AZS Latvijā",
       "prices": {
-        "95": 1.687,
-        "98": 1.792,
+        "95": 1.717,
+        "98": 1.822,
         "D": 1.807,
         "LPG": 0.985
       },
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "up",
+        "98": "up",
         "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-02T13:05:10.400253"
+      "scraped_at": "2026-05-02T16:43:23.658693"
     },
     "virsi": {
       "name": "Virši",
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-02T13:05:10.400258"
+      "scraped_at": "2026-05-02T16:43:23.658698"
     }
   }
 }
