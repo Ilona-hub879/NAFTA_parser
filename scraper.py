@@ -700,10 +700,17 @@ def _viada_fuel_from_img(src_url: str) -> Optional[str]:
 def _scrape_viada_http(raw: str) -> dict[str, float]:
     """
     Viada-specific parser: fuel type is encoded in an <img> src in the first
-    table cell.  Take the MINIMUM price when multiple stations offer the same
-    fuel at different prices.
+    table cell.
+
+    viada.lv/zemakas-degvielas-cenas/ lists prices for two station types:
+      • ADUS — automated stations (no staff, no loyalty cards); cheaper.
+      • DUS  — standard full-service stations; higher price, most of the network.
+
+    We prefer DUS prices. ADUS prices are used only as a fallback when no
+    DUS price exists for a given fuel type (e.g. LPG, 95, 98).
     """
-    prices: dict[str, float] = {}
+    dus_prices:  dict[str, float] = {}   # standard DUS stations
+    adus_prices: dict[str, float] = {}   # automated ADUS-only stations
 
     for tr_m in _TR_RE.finditer(raw):
         raw_cells = _CELL_RE.findall(tr_m.group(1))
@@ -720,11 +727,31 @@ def _scrape_viada_http(raw: str) -> dict[str, float]:
 
         price_text = _html_mod.unescape(_TAG_RE.sub(" ", raw_cells[1])).strip()
         price = parse_price(price_text)
-        if price:
-            # Keep the cheapest price for each fuel type
-            if fuel not in prices or price < prices[fuel]:
-                prices[fuel] = price
+        if not price:
+            continue
 
+        # Determine station type from the 3rd column (station list).
+        # A row is ADUS-only when every station name starts with "ADUS".
+        # A row has standard DUS when at least one name starts with "DUS "
+        # (not preceded by "A", e.g. "DUS Dārzciema").
+        is_adus_only = True
+        if len(raw_cells) >= 3:
+            stations_upper = _TAG_RE.sub(" ", raw_cells[2]).upper()
+            # True DUS station name: "DUS " not preceded by "A"
+            has_true_dus = bool(re.search(r"(?<!A)DUS\s", stations_upper))
+            if has_true_dus:
+                is_adus_only = False
+
+        if is_adus_only:
+            if fuel not in adus_prices or price < adus_prices[fuel]:
+                adus_prices[fuel] = price
+        else:
+            if fuel not in dus_prices or price < dus_prices[fuel]:
+                dus_prices[fuel] = price
+
+    # Merge: DUS prices take priority; ADUS fills gaps
+    prices = {**adus_prices}
+    prices.update(dus_prices)
     return prices
 
 
@@ -971,7 +998,7 @@ def generate_demo() -> dict:
             ],
         },
         "viada": {
-            "prices":  {"95": 1.727, "98": 1.832, "D": 1.997, "LPG": 0.995},
+            "prices":  {"95": 1.747, "98": 1.852, "D": 1.947, "LPG": 0.985},
             "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {
@@ -979,8 +1006,8 @@ def generate_demo() -> dict:
                     "discount_eur": 0.025,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.727 - 0.025, 3),
-                        "D":  round(1.997 - 0.025, 3),
+                        "95": round(1.747 - 0.025, 3),
+                        "D":  round(1.947 - 0.025, 3),
                     },
                 },
                 {
@@ -988,8 +1015,8 @@ def generate_demo() -> dict:
                     "discount_eur": 0.035,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.727 - 0.035, 3),
-                        "D":  round(1.997 - 0.035, 3),
+                        "95": round(1.747 - 0.035, 3),
+                        "D":  round(1.947 - 0.035, 3),
                     },
                 },
             ],
