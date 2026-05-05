@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-04-09T17:05:38.690474",
+  "scraped_at": "2026-05-05T10:00:39.337517",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.854,
-        "98": 1.924,
-        "D": 2.144,
-        "LPG": 1.085
+        "95": 1.814,
+        "98": 1.884,
+        "D": 1.954,
+        "LPG": 1.055
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -25,11 +25,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "down",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T17:05:38.690440"
+      "scraped_at": "2026-05-05T10:00:39.337480"
     },
     "neste": {
       "name": "Neste",
@@ -37,9 +37,9 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.837,
-        "98": 1.907,
-        "D": 2.127
+        "95": 1.797,
+        "98": 1.867,
+        "D": 1.937
       },
       "discounts": {
         "Neste Card": 0.06
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "down"
+        "95": "up",
+        "98": "up",
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T17:05:38.690452"
+      "scraped_at": "2026-05-05T10:00:39.337494"
     },
     "viada": {
       "name": "Viada",
@@ -62,9 +62,9 @@
       "url": "https://www.viada.lv/zemakas-degvielas-cenas/",
       "address": "15+ AZS Latvijā",
       "prices": {
-        "95": 1.727,
-        "98": 1.832,
-        "D": 1.997,
+        "95": 1.747,
+        "98": 1.852,
+        "D": 1.817,
         "LPG": 0.985
       },
       "discounts": {
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
+        "95": "up",
+        "98": "up",
+        "D": "up",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T17:05:38.690458"
+      "scraped_at": "2026-05-05T10:00:39.337499"
     },
     "virsi": {
       "name": "Virši",
@@ -91,11 +91,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.854,
-        "98": 1.907,
-        "LPG": 1.085,
+        "95": 1.797,
+        "98": 1.897,
+        "LPG": 1.055,
         "AdBlue": 0.845,
-        "D": 2.147
+        "D": 1.867
       },
       "discounts": {
         "Virši+": 0.05
@@ -113,7 +113,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-04-09T17:05:38.690463"
+      "scraped_at": "2026-05-05T10:00:39.337504"
     }
   }
 }
