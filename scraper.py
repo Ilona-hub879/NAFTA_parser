@@ -598,6 +598,9 @@ _STATIC_PRICES: dict[str, dict[str, float]] = {
     "virsi": {"95": 1.854, "98": 1.907, "D": 2.147, "LPG": 1.085, "AdBlue": 0.845},
 }
 
+# Side-effect cache: filled by _scrape_viada_http, consumed by scrape_all()
+_viada_adus_prices: dict[str, float] = {}
+
 
 # ---------------------------------------------------------------------------
 # Lightweight HTTP scraper (no browser required)
@@ -748,6 +751,10 @@ def _scrape_viada_http(raw: str) -> dict[str, float]:
         else:
             if fuel not in dus_prices or price < dus_prices[fuel]:
                 dus_prices[fuel] = price
+
+    # Persist ADUS prices for scrape_all() to attach to the station record
+    global _viada_adus_prices
+    _viada_adus_prices = dict(adus_prices)
 
     # Merge: DUS prices take priority; ADUS fills gaps
     prices = {**adus_prices}
@@ -937,6 +944,9 @@ async def scrape_all(debug: bool = False) -> dict:
         }
         if error_msg:
             record["error"] = error_msg
+        # Attach ADUS prices for Viada so the UI can show both tiers
+        if station_id == "viada" and _viada_adus_prices:
+            record["adus_prices"] = dict(_viada_adus_prices)
 
         results[station_id] = record
 
@@ -998,7 +1008,8 @@ def generate_demo() -> dict:
             ],
         },
         "viada": {
-            "prices":  {"95": 1.747, "98": 1.852, "D": 1.947, "LPG": 0.985},
+            "prices":      {"95": 1.747, "98": 1.852, "D": 1.947, "LPG": 0.985},
+            "adus_prices": {"95": 1.747, "98": 1.852, "D": 1.817, "LPG": 0.985},
             "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {

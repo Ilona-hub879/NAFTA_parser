@@ -387,12 +387,80 @@ def render_nearby_stations_block() -> None:
 # CSS injection
 # ---------------------------------------------------------------------------
 
-def inject_css() -> None:
+def inject_css(light_mode: bool = False) -> None:
     bg_b64 = _b64("images/backgraund4.jpg")
     bg_layer = (
         f"url('{bg_b64}') center/cover fixed no-repeat"
-        if bg_b64 else "#121212"
+        if bg_b64 else ("#f0f2f5" if light_mode else "#121212")
     )
+
+    # ── Color tokens ──────────────────────────────────────────────────────────
+    if light_mode:
+        c_text        = "#111827"
+        c_heading     = "#111827"
+        c_app_bg      = "#f0f2f5"
+        c_ov1         = "rgba(230,232,235,0.82)"
+        c_ov2         = "rgba(220,222,225,0.65)"
+        c_sidebar_bg  = "rgba(235,237,240,0.97)"
+        c_sidebar_bdr = "rgba(0,0,0,0.07)"
+        c_card_bg     = "rgba(242,244,247,0.93)"
+        c_card_bdr    = "rgba(0,0,0,0.10)"
+        c_card_shadow = "rgba(0,0,0,0.18)"
+        c_card_hover  = "rgba(0,0,0,0.26)"
+        c_radio_bg    = "rgba(0,0,0,0.04)"
+        c_radio_bdr   = "rgba(0,0,0,0.08)"
+        c_select_bg   = "rgba(0,0,0,0.03)"
+        c_select_bdr  = "rgba(0,0,0,0.08)"
+        c_btn_text    = "#111827"
+        c_metric_bg   = "rgba(242,244,247,0.95)"
+        c_metric_bdr  = "rgba(0,0,0,0.12)"
+        c_metric_lbl  = "#374151"
+        c_metric_val  = "#111827"
+        c_hr          = "rgba(0,0,0,0.08)"
+        c_alert_bg    = "rgba(242,244,247,0.95)"
+        c_alert_bdr   = "rgba(0,0,0,0.15)"
+        c_alert_text  = "#111827"
+        c_gift_row    = "#6b7280"
+        c_analytic_bg = "rgba(242,244,247,0.92)"
+        c_analytic_bdr= "rgba(0,0,0,0.10)"
+        c_promo_text  = "#4b5563"
+        c_promo_bdr   = "rgba(0,0,0,.06)"
+        c_no_data     = "#6b7280"
+        c_scrollbar   = "#e5e7eb"
+        c_scrollthumb = "rgba(0,120,60,.35)"
+    else:
+        c_text        = "#e5e7eb"
+        c_heading     = "#ffffff"
+        c_app_bg      = "#121212"
+        c_ov1         = "rgba(15,23,42,0.92)"
+        c_ov2         = "rgba(15,23,42,0.75)"
+        c_sidebar_bg  = "rgba(18,18,18,0.97)"
+        c_sidebar_bdr = "rgba(255,255,255,0.05)"
+        c_card_bg     = "rgba(2,6,23,0.85)"
+        c_card_bdr    = "rgba(250,204,21,0.35)"
+        c_card_shadow = "rgba(0,0,0,0.70)"
+        c_card_hover  = "rgba(0,0,0,0.85)"
+        c_radio_bg    = "rgba(255,255,255,0.04)"
+        c_radio_bdr   = "rgba(255,255,255,0.07)"
+        c_select_bg   = "rgba(255,255,255,0.03)"
+        c_select_bdr  = "rgba(255,255,255,0.07)"
+        c_btn_text    = "#ffffff"
+        c_metric_bg   = "rgba(2,6,23,0.85)"
+        c_metric_bdr  = "rgba(250,204,21,0.35)"
+        c_metric_lbl  = "#d1d5db"
+        c_metric_val  = "#ffffff"
+        c_hr          = "rgba(255,255,255,0.05)"
+        c_alert_bg    = "rgba(2,6,23,0.85)"
+        c_alert_bdr   = "rgba(250,204,21,0.35)"
+        c_alert_text  = "#e5e7eb"
+        c_gift_row    = "#9ca3af"
+        c_analytic_bg = "rgba(2,6,23,0.85)"
+        c_analytic_bdr= "rgba(250,204,21,0.35)"
+        c_promo_text  = "#9ca3af"
+        c_promo_bdr   = "rgba(255,255,255,.06)"
+        c_no_data     = "#4b5563"
+        c_scrollbar   = "#0a0a0a"
+        c_scrollthumb = "rgba(0,255,127,.3)"
 
     st.markdown(f"""
 <style>
@@ -401,14 +469,14 @@ def inject_css() -> None:
 /* ── Base ── */
 html, body, [class*="css"] {{
     font-family: 'Inter', sans-serif !important;
-    color: #e5e7eb;
+    color: {c_text};
 }}
 .stApp {{
     background:
-        radial-gradient(circle at top left,  rgba(15,23,42,0.92), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(15,23,42,0.75), transparent 55%),
+        radial-gradient(circle at top left,  {c_ov1}, transparent 55%),
+        radial-gradient(circle at bottom right, {c_ov2}, transparent 55%),
         {bg_layer};
-    background-color: #121212;
+    background-color: {c_app_bg};
 }}
 .block-container {{
     padding-top: 1.5rem !important;
@@ -418,16 +486,15 @@ html, body, [class*="css"] {{
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {{
-    background: rgba(18,18,18,0.97) !important;
-    border-right: 1px solid rgba(255,255,255,0.05) !important;
+    background: {c_sidebar_bg} !important;
+    border-right: 1px solid {c_sidebar_bdr} !important;
 }}
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] span {{
-    color: #e5e7eb !important;
+    color: {c_text} !important;
     font-family: 'Inter', sans-serif !important;
 }}
-/* ── Hide Streamlit's default sidebar-collapse icon label ── */
 [data-testid="collapsedControl"] {{
     display: none !important;
 }}
@@ -435,7 +502,6 @@ button[title*="keyboard"],
 button[aria-label*="keyboard"] {{
     display: none !important;
 }}
-/* When Material Symbols font is missing the icon name renders as plain text — hide it */
 .material-symbols-sharp,
 .material-symbols-outlined,
 .material-symbols-rounded {{
@@ -473,14 +539,14 @@ button[aria-label*="keyboard"] {{
 /* ── Headings ── */
 h1, h2, h3 {{
     font-family: 'Syne', sans-serif !important;
-    color: #ffffff !important;
+    color: {c_heading} !important;
 }}
 
 /* ── Buttons ── */
 .stButton > button {{
     background: rgba(0,255,127,0.10) !important;
     border: 1px solid #00ff7f !important;
-    color: #ffffff !important;
+    color: {c_btn_text} !important;
     font-family: 'Syne', sans-serif !important;
     font-weight: 700 !important;
     border-radius: 999px !important;
@@ -498,11 +564,11 @@ h1, h2, h3 {{
     gap: 8px;
 }}
 .stRadio label {{
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: {c_radio_bg};
+    border: 1px solid {c_radio_bdr};
     border-radius: 8px;
     padding: 6px 14px;
-    color: #e5e7eb !important;
+    color: {c_text} !important;
     font-family: 'Inter', sans-serif !important;
     font-size: .9rem;
     transition: all .2s;
@@ -516,10 +582,10 @@ h1, h2, h3 {{
 
 /* ── Selectbox / multiselect ── */
 [data-baseweb="select"] > div {{
-    background: rgba(255,255,255,0.03) !important;
-    border: 1px solid rgba(255,255,255,0.07) !important;
+    background: {c_select_bg} !important;
+    border: 1px solid {c_select_bdr} !important;
     border-radius: 12px !important;
-    color: #e5e7eb !important;
+    color: {c_text} !important;
 }}
 [data-baseweb="tag"] {{
     background: rgba(0,255,127,0.15) !important;
@@ -529,20 +595,20 @@ h1, h2, h3 {{
 
 /* ── Metric ── */
 [data-testid="metric-container"] {{
-    background: rgba(2,6,23,0.85);
+    background: {c_metric_bg};
     backdrop-filter: blur(14px);
-    border: 1px solid rgba(250,204,21,0.35);
+    border: 1px solid {c_metric_bdr};
     border-radius: 16px;
     padding: 18px 20px;
 }}
 [data-testid="metric-container"] label {{
-    color: #d1d5db !important;
+    color: {c_metric_lbl} !important;
     font-size: 1rem !important;
     text-transform: uppercase;
     letter-spacing: .08em;
 }}
 [data-testid="stMetricValue"] {{
-    color: #ffffff !important;
+    color: {c_metric_val} !important;
     font-family: 'Inter', sans-serif !important;
     font-size: 1.8rem !important;
     font-weight: 700 !important;
@@ -555,35 +621,35 @@ h1, h2, h3 {{
 
 /* ── Divider ── */
 hr {{
-    border-color: rgba(255,255,255,0.05) !important;
+    border-color: {c_hr} !important;
 }}
 
 /* ── Alert/info ── */
 .stAlert {{
-    background: rgba(2,6,23,0.85) !important;
-    border: 1px solid rgba(250,204,21,0.35) !important;
-    color: #e5e7eb !important;
+    background: {c_alert_bg} !important;
+    border: 1px solid {c_alert_bdr} !important;
+    color: {c_alert_text} !important;
     border-radius: 12px !important;
 }}
 
 /* ── Checkbox ── */
-.stCheckbox label {{ color: #e5e7eb !important; }}
+.stCheckbox label {{ color: {c_text} !important; }}
 
 /* ── Custom cards ── */
 .glass-card {{
-    background: rgba(2,6,23,0.85);
+    background: {c_card_bg};
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(250,204,21,0.35);
+    border: 1px solid {c_card_bdr};
     border-radius: 18px;
-    box-shadow: 0 18px 45px rgba(0,0,0,0.7);
+    box-shadow: 0 18px 45px {c_card_shadow};
     padding: 22px 24px;
     margin-bottom: 14px;
     transition: transform .3s ease, box-shadow .3s ease;
 }}
 .glass-card:hover {{
     transform: translateY(-5px);
-    box-shadow: 0 24px 55px rgba(0,0,0,0.85);
+    box-shadow: 0 24px 55px {c_card_hover};
 }}
 .station-logo {{
     width: 80px;
@@ -595,14 +661,14 @@ hr {{
     font-family: 'Syne', sans-serif;
     font-size: 1.55rem;
     font-weight: 700;
-    color: #ffffff;
+    color: {c_heading};
     margin: 4px 0;
 }}
 .price-main {{
     font-family: 'Syne', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: {c_heading};
     line-height: 1;
 }}
 .price-unit {{
@@ -618,7 +684,7 @@ hr {{
 }}
 .gift-row {{
     font-size: 1.05rem;
-    color: #9ca3af;
+    color: {c_gift_row};
     margin-top: 2px;
 }}
 .gift-badge {{
@@ -651,16 +717,16 @@ hr {{
     font-family: 'Syne', sans-serif;
     font-size: 1.4rem;
     font-weight: 700;
-    color: #ffffff;
+    color: {c_heading};
     margin-bottom: 4px;
 }}
 .section-header .accent {{
     color: #00ff7f;
 }}
 .analytic-box {{
-    background: rgba(2,6,23,0.85);
+    background: {c_analytic_bg};
     backdrop-filter: blur(14px);
-    border: 1px solid rgba(250,204,21,0.35);
+    border: 1px solid {c_analytic_bdr};
     border-radius: 16px;
     padding: 20px;
     text-align: center;
@@ -693,9 +759,16 @@ hr {{
     margin-bottom: 6px;
 }}
 .no-data {{
-    color: #4b5563;
+    color: {c_no_data};
     font-size: 1.1rem;
     font-style: italic;
+}}
+.adus-note {{
+    font-size: .78rem;
+    color: #6b7280;
+    font-style: italic;
+    margin-top: 3px;
+    padding: 3px 0;
 }}
 
 /* ── Responsive CSS Grid for station cards ── */
@@ -705,19 +778,15 @@ hr {{
     gap: 18px;
     margin-bottom: 28px;
 }}
-/* ≥ 1400 px — 4 cols */
 @media (min-width: 1400px) {{
     .cards-grid {{ grid-template-columns: repeat(4, 1fr); }}
 }}
-/* 900–1399 px — 3 cols */
 @media (min-width: 900px) and (max-width: 1399px) {{
     .cards-grid {{ grid-template-columns: repeat(3, 1fr); }}
 }}
-/* 580–899 px — 2 cols */
 @media (min-width: 580px) and (max-width: 899px) {{
     .cards-grid {{ grid-template-columns: repeat(2, 1fr); }}
 }}
-/* < 580 px — 1 col */
 @media (max-width: 579px) {{
     .cards-grid {{ grid-template-columns: 1fr; }}
     .block-container {{ padding-left: 8px !important; padding-right: 8px !important; }}
@@ -746,12 +815,12 @@ hr {{
 /* ── Promo card strip ── */
 .promo-strip {{
     margin-top: 10px;
-    border-top: 1px solid rgba(255,255,255,.06);
+    border-top: 1px solid {c_promo_bdr};
     padding-top: 8px;
 }}
 .promo-item {{
     font-size: 1rem;
-    color: #9ca3af;
+    color: {c_promo_text};
     line-height: 1.5;
     margin-bottom: 5px;
     padding-left: 8px;
@@ -766,8 +835,8 @@ hr {{
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {{ width: 5px; }}
-::-webkit-scrollbar-track {{ background: #0a0a0a; }}
-::-webkit-scrollbar-thumb {{ background: rgba(0,255,127,.3); border-radius: 3px; }}
+::-webkit-scrollbar-track {{ background: {c_scrollbar}; }}
+::-webkit-scrollbar-thumb {{ background: {c_scrollthumb}; border-radius: 3px; }}
 
 /* ── Hide default chrome ── */
 #MainMenu, footer {{ visibility: hidden; }}
@@ -963,6 +1032,9 @@ def build_card_html(
     loyalty_keys: list[str],
 ) -> str:
     """Return the complete HTML for one station card."""
+    lm          = st.session_state.get("light_mode", False)
+    hr_color    = "rgba(0,0,0,.08)" if lm else "rgba(255,255,255,.05)"
+    addr_color  = "#374151" if lm else "#6b7280"
     price       = station["prices"].get(fuel)
     logo_b64    = _b64(station["logo"])
     trend_key   = station.get("trends", {}).get(fuel, "stable")
@@ -991,6 +1063,17 @@ def build_card_html(
     card_discounts = _applicable_loyalties(station_id, loyalty_keys)
     has_discount = len(card_discounts) > 0
 
+    # ADUS secondary-price note (Viada only)
+    adus_note_html = ""
+    if station_id == "viada":
+        adus_price = station.get("adus_prices", {}).get(fuel)
+        if adus_price is not None and price is not None and round(adus_price, 3) != round(price, 3):
+            adus_note_html = (
+                f'<div class="adus-note">'
+                f'ADUS (bez personāla): {adus_price:.3f} €/l'
+                f'</div>'
+            )
+
     if price is None:
         price_html    = '<div class="no-data">Cena nav pieejama</div>'
         discount_html = ""
@@ -1001,6 +1084,7 @@ def build_card_html(
             f'<span class="price-unit"> €/l</span>'
             f'<span class="trend-badge" style="color:{trend_color};">{trend_icon}</span>'
             f'</div>'
+            f'{adus_note_html}'
         )
         if has_discount:
             discount_rows = []
@@ -1048,10 +1132,10 @@ def build_card_html(
         f'<div class="{card_class}">'
         f'  {logo_tag}'
         f'  <div class="station-name">{station["name"]}</div>'
-        f'  <div style="font-size:.72rem;color:#6b7280;margin-bottom:10px;">'
+        f'  <div style="font-size:.72rem;color:{addr_color};margin-bottom:10px;">'
         f'    {station.get("address", "")}'
         f'  </div>'
-        f'  <hr style="border-color:rgba(255,255,255,.05);margin:8px 0;">'
+        f'  <hr style="border-color:{hr_color};margin:8px 0;">'
         f'  {price_html}'
         f'  {discount_html}'
         f'  {gift_html}'
@@ -1068,8 +1152,10 @@ def build_card_html(
 # ---------------------------------------------------------------------------
 
 def render_analytics(stations: dict, fuel: str, loyalty_keys: list[str]) -> None:
+    _lm = st.session_state.get("light_mode", False)
+    _hr = "rgba(0,0,0,.08)" if _lm else "rgba(255,255,255,.05)"
     st.markdown(
-        '<hr style="border-color:rgba(255,255,255,.05);margin:8px 0 20px;">',
+        f'<hr style="border-color:{_hr};margin:8px 0 20px;">',
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -1142,7 +1228,8 @@ def render_analytics(stations: dict, fuel: str, loyalty_keys: list[str]) -> None
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    inject_css()
+    light_mode = st.session_state.get("light_mode", False)
+    inject_css(light_mode)
     inject_js()
 
     # ── Auto-close sidebar after scrape refresh ──────────────────────────────
@@ -1169,14 +1256,24 @@ def main() -> None:
         )
 
     # ── Header ──────────────────────────────────────────────────────────────
-    st.markdown(
-        '<h1 style="font-family:Syne,sans-serif;font-size:2.2rem;'
-        'font-weight:800;color:#fff;margin-bottom:2px;">'
-        '⛽ Degvielas <span style="color:#00ff7f;">Cenas</span> Latvijā</h1>'
-        '<p style="color:#6b7280;font-size:.85rem;margin-bottom:24px;">'
-        'Reāllaika cenas no Circle K · Neste · Viada · Virši</p>',
-        unsafe_allow_html=True,
-    )
+    _hcol, _tcol = st.columns([11, 1])
+    heading_color = "#111827" if light_mode else "#ffffff"
+    sub_color     = "#374151" if light_mode else "#6b7280"
+    with _hcol:
+        st.markdown(
+            f'<h1 style="font-family:Syne,sans-serif;font-size:2.2rem;'
+            f'font-weight:800;color:{heading_color};margin-bottom:2px;">'
+            f'⛽ Degvielas <span style="color:#00ff7f;">Cenas</span> Latvijā</h1>'
+            f'<p style="color:{sub_color};font-size:.85rem;margin-bottom:24px;">'
+            f'Reāllaika cenas no Circle K · Neste · Viada · Virši</p>',
+            unsafe_allow_html=True,
+        )
+    with _tcol:
+        toggle_icon = "☀️" if not light_mode else "🌙"
+        toggle_help = "Pārslēgt uz gaišo tēmu" if not light_mode else "Pārslēgt uz tumšo tēmu"
+        if st.button(toggle_icon, key="theme_toggle", help=toggle_help):
+            st.session_state["light_mode"] = not light_mode
+            st.rerun()
 
     # ── Sidebar ──────────────────────────────────────────────────────────────
     selected_fuel, loyalty_keys, amenity_filter = render_sidebar()
@@ -1244,16 +1341,20 @@ def main() -> None:
             f'⚠ {n_errors} kļūda</span>'
             if n_errors else ""
         )
+        _ts_text  = "#374151" if light_mode else "#6b7280"
+        _ts_val   = "#111827" if light_mode else "#e5e7eb"
+        _ts_bg    = "rgba(0,0,0,.06)" if light_mode else "rgba(255,255,255,.06)"
+        _ts_faint = "#374151" if light_mode else "#4b5563"
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:8px;'
             f'margin-bottom:18px;flex-wrap:wrap;">'
-            f'  <span style="font-size:.85rem;color:#6b7280;">🕐 Cenas atjaunotas:</span>'
-            f'  <span style="font-size:.9rem;color:#e5e7eb;font-weight:600;">{ts}</span>'
+            f'  <span style="font-size:.85rem;color:{_ts_text};">🕐 Cenas atjaunotas:</span>'
+            f'  <span style="font-size:.9rem;color:{_ts_val};font-weight:600;">{ts}</span>'
             f'  <span style="font-size:.8rem;color:{age_color};'
-            f'  background:rgba(255,255,255,.06);border-radius:6px;padding:2px 10px;">'
+            f'  background:{_ts_bg};border-radius:6px;padding:2px 10px;">'
             f'  {age_text}</span>'
             f'  {err_badge}'
-            f'  <span style="font-size:.75rem;color:#4b5563;margin-left:4px;">'
+            f'  <span style="font-size:.75rem;color:{_ts_faint};margin-left:4px;">'
             f'  · atjaunojas automātiski ik pēc 4 h</span>'
             f'</div>',
             unsafe_allow_html=True,
