@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-06T02:36:02.722803",
+  "scraped_at": "2026-05-06T06:29:58.531714",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.814,
+        "95": 1.774,
         "98": 1.884,
-        "D": 1.954,
-        "LPG": 1.055
+        "D": 1.904,
+        "LPG": 1.044
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
+        "95": "down",
         "98": "stable",
-        "D": "stable",
-        "LPG": "stable"
+        "D": "down",
+        "LPG": "down"
       },
       "promos": [],
-      "scraped_at": "2026-05-06T02:36:02.722771"
+      "scraped_at": "2026-05-06T06:29:58.531677"
     },
     "neste": {
       "name": "Neste",
@@ -37,8 +37,8 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.757,
-        "98": 1.827,
+        "95": 1.717,
+        "98": 1.777,
         "D": 1.887
       },
       "discounts": {
@@ -51,10 +51,10 @@
       "trends": {
         "95": "down",
         "98": "down",
-        "D": "down"
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-06T02:36:02.722783"
+      "scraped_at": "2026-05-06T06:29:58.531690"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-06T02:36:02.722787",
+      "scraped_at": "2026-05-06T06:29:58.531695",
       "adus_prices": {
         "95": 1.747,
         "98": 1.852,
@@ -97,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.797,
-        "98": 1.897,
+        "95": 1.717,
+        "98": 1.787,
         "LPG": 1.055,
         "AdBlue": 0.845,
-        "D": 1.867
+        "D": 1.887
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "down",
+        "98": "down",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-05-06T02:36:02.722793"
+      "scraped_at": "2026-05-06T06:29:58.531702"
     }
   }
 }
