@@ -917,6 +917,20 @@ def inject_js() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Fuel-selector sync helpers
+# ---------------------------------------------------------------------------
+
+def _sync_main_from_sb() -> None:
+    """Sidebar fuel radio changed → keep main-screen selector in sync."""
+    st.session_state["main_fuel"] = st.session_state.get("sb_fuel")
+
+
+def _sync_sb_from_main() -> None:
+    """Main-screen fuel radio changed → keep sidebar selector in sync."""
+    st.session_state["sb_fuel"] = st.session_state.get("main_fuel")
+
+
+# ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
 
@@ -953,7 +967,10 @@ def render_sidebar() -> tuple[str, list[str], list[str]]:
     fuel_keys  = list(FUEL_LABELS.keys())
     fuel_names = list(FUEL_LABELS.values())
     fuel_choice = st.sidebar.radio(
-        "fuel_type", fuel_names, index=0, label_visibility="collapsed"
+        "fuel_type", fuel_names,
+        key="sb_fuel",
+        on_change=_sync_main_from_sb,
+        label_visibility="collapsed",
     )
     selected_fuel = fuel_keys[fuel_names.index(fuel_choice)]
 
@@ -969,7 +986,7 @@ def render_sidebar() -> tuple[str, list[str], list[str]]:
     loyalty_choice = st.sidebar.multiselect(
         "loyalty",
         loyalty_keys,
-        default=[],
+        key="sb_loyalty",
         label_visibility="collapsed",
     )
 
@@ -1151,76 +1168,6 @@ def build_card_html(
 # Analytics block
 # ---------------------------------------------------------------------------
 
-def render_analytics(stations: dict, fuel: str, loyalty_keys: list[str]) -> None:
-    _lm = st.session_state.get("light_mode", False)
-    _hr = "rgba(0,0,0,.08)" if _lm else "rgba(255,255,255,.05)"
-    st.markdown(
-        f'<hr style="border-color:{_hr};margin:8px 0 20px;">',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="section-header">// <span class="accent">Analītika</span></div>',
-        unsafe_allow_html=True,
-    )
-
-    # Collect all available prices for selected fuel
-    prices_with_ids = [
-        (sid, s["prices"][fuel], s["name"])
-        for sid, s in stations.items()
-        if fuel in s.get("prices", {})
-    ]
-
-    if not prices_with_ids:
-        st.info("Nav pieejamu cenu analītikai.")
-        return
-
-    prices_only = [p for _, p, _ in prices_with_ids]
-    avg_price    = sum(prices_only) / len(prices_only)
-    min_price    = min(prices_only)
-    max_price    = max(prices_only)
-    spread       = max_price - min_price
-
-    # Metrics row
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("⌀ Vidējā cena", f"{avg_price:.3f} €/l")
-    c2.metric("↓ Zemākā", f"{min_price:.3f} €/l")
-    c3.metric("↑ Augstākā", f"{max_price:.3f} €/l")
-    c4.metric("↔ Starpība", f"{spread:.3f} €/l")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Top-3 cheapest
-    sorted_stations = sorted(prices_with_ids, key=lambda x: x[1])
-    medals = ["🥇", "🥈", "🥉"]
-    top_cols = st.columns(min(3, len(sorted_stations)))
-    for i, (sid, price, name) in enumerate(sorted_stations[:3]):
-        card_discounts = _applicable_loyalties(sid, loyalty_keys)
-        best_discount = max((d for _, d in card_discounts), default=0.0)
-        net_price = round(price - best_discount, 3)
-        logo_b64 = _b64(stations[sid]["logo"])
-        logo_tag = (
-            f'<img src="{logo_b64}" style="width:60px;height:30px;'
-            f'object-fit:contain;margin-bottom:6px;">'
-            if logo_b64 else ""
-        )
-        extra = (
-            f'<div style="font-size:.75rem;color:#00ff7f;">'
-            f'ar kartēm: {net_price:.3f} €/l</div>'
-            f'<div style="font-size:.68rem;color:#6b7280;">'
-            f'{", ".join(k for k, _ in card_discounts[:2])}'
-            f'{"…" if len(card_discounts) > 2 else ""}</div>'
-            if best_discount > 0 else ""
-        )
-        top_cols[i].markdown(
-            f'<div class="analytic-box">'
-            f'<div class="top-badge">{medals[i]} Top {i+1}</div><br>'
-            f'{logo_tag}'
-            f'<div class="analytic-value">{price:.3f} €/l</div>'
-            f'<div class="analytic-label">{name}</div>'
-            f'{extra}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -1231,6 +1178,34 @@ def main() -> None:
     light_mode = st.session_state.get("light_mode", False)
     inject_css(light_mode)
     inject_js()
+
+    # ── Auto-open sidebar on very first visit (mobile fallback) ─────────────
+    if "_welcomed" not in st.session_state:
+        st.session_state["_welcomed"] = True
+        components.html(
+            """<script>
+(function openSidebar() {
+    var tries = 0;
+    var t = setInterval(function() {
+        tries++;
+        if (tries > 40) { clearInterval(t); return; }
+        var doc = window.parent.document;
+        var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+        if (!sidebar) return;
+        // Already open if width > 60px
+        if (sidebar.getBoundingClientRect().width > 60) { clearInterval(t); return; }
+        // Try every known toggle-button selector
+        var btn = doc.querySelector('button[data-testid="stBaseButton-headerNoPadding"]')
+               || doc.querySelector('[data-testid="stSidebarCollapsedControl"] button')
+               || doc.querySelector('[data-testid="collapsedControl"] button')
+               || doc.querySelector('button[aria-label*="sidebar"]')
+               || doc.querySelector('button[aria-label*="Sidebar"]');
+        if (btn) { btn.click(); clearInterval(t); }
+    }, 150);
+})();
+</script>""",
+            height=0,
+        )
 
     # ── Auto-close sidebar after scrape refresh ──────────────────────────────
     if st.session_state.pop("_close_sidebar", False):
@@ -1278,6 +1253,12 @@ def main() -> None:
     # ── Sidebar ──────────────────────────────────────────────────────────────
     selected_fuel, loyalty_keys, amenity_filter = render_sidebar()
 
+    # Ensure main_fuel key exists and stays in sync with sidebar on first render
+    if "main_fuel" not in st.session_state:
+        st.session_state["main_fuel"] = st.session_state.get(
+            "sb_fuel", list(FUEL_LABELS.values())[0]
+        )
+
     # ── Auto-bootstrap: generate demo data if prices.json is missing ─────────
     was_bootstrapped = bootstrap_if_needed()
     if was_bootstrapped:
@@ -1312,6 +1293,25 @@ def main() -> None:
             st.info("Nav AZS ar visiem izvēlētajiem pakalpojumiem.")
             return
 
+    # ── Inline fuel selector (main screen) ──────────────────────────────────
+    st.markdown(
+        '<div class="section-header">// <span class="accent">Cenas</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.radio(
+        "Degvielas veids",
+        list(FUEL_LABELS.values()),
+        key="main_fuel",
+        on_change=_sync_sb_from_main,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    # Derive selected_fuel from main-screen selector (kept in sync with sidebar)
+    selected_fuel = next(
+        (k for k, v in FUEL_LABELS.items() if v == st.session_state["main_fuel"]),
+        "95",
+    )
+
     # ── Sort: cheapest first; stations with no price go to the end ───────────
     def sort_key(item: tuple) -> float:
         _, s = item
@@ -1319,14 +1319,6 @@ def main() -> None:
         return p if p is not None else 9999.0
 
     sorted_stations = sorted(stations.items(), key=sort_key)
-
-    # ── Section title ────────────────────────────────────────────────────────
-    fuel_label = FUEL_LABELS.get(selected_fuel, selected_fuel)
-    st.markdown(
-        f'<div class="section-header">// Cenas — '
-        f'<span class="accent">{fuel_label}</span></div>',
-        unsafe_allow_html=True,
-    )
     scraped_at = data.get("scraped_at", "")
     if scraped_at:
         try:
@@ -1374,9 +1366,6 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    # ── Analytics ────────────────────────────────────────────────────────────
-    render_analytics(stations, selected_fuel, loyalty_keys)
-    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
     render_nearby_stations_block()
 
 
