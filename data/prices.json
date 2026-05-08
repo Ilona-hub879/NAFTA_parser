@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-05T10:00:39.337517",
+  "scraped_at": "2026-05-08T09:17:16.155661",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -10,7 +10,7 @@
         "95": 1.814,
         "98": 1.884,
         "D": 1.954,
-        "LPG": 1.055
+        "LPG": 1.044
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-05T10:00:39.337480"
+      "scraped_at": "2026-05-08T09:17:16.155626"
     },
     "neste": {
       "name": "Neste",
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-05T10:00:39.337494"
+      "scraped_at": "2026-05-08T09:17:16.155639"
     },
     "viada": {
       "name": "Viada",
@@ -64,8 +64,8 @@
       "prices": {
         "95": 1.747,
         "98": 1.852,
-        "D": 1.817,
-        "LPG": 0.985
+        "D": 1.947,
+        "LPG": 0.945
       },
       "discounts": {
         "Viada plus (līdz 70 l)": 0.025,
@@ -77,13 +77,19 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up",
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-05T10:00:39.337499"
+      "scraped_at": "2026-05-08T09:17:16.155644",
+      "adus_prices": {
+        "95": 1.747,
+        "98": 1.852,
+        "D": 1.817,
+        "LPG": 0.945
+      }
     },
     "virsi": {
       "name": "Virši",
@@ -91,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.797,
+        "95": 1.827,
         "98": 1.897,
         "LPG": 1.055,
         "AdBlue": 0.845,
-        "D": 1.867
+        "D": 1.967
       },
       "discounts": {
         "Virši+": 0.05
@@ -113,7 +119,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-05T10:00:39.337504"
+      "scraped_at": "2026-05-08T09:17:16.155650"
     }
   }
 }
