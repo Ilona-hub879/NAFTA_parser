@@ -851,6 +851,8 @@ def inject_js() -> None:
     components.html(
         """<script>
 (function patchUI() {
+
+    /* ── replace ugly Material Symbol text with styled arrows ── */
     function patchArrows() {
         var doc = window.parent.document;
         doc.querySelectorAll('button span, button p, button').forEach(function(el) {
@@ -862,7 +864,6 @@ def inject_js() -> None:
                     'font-family:Syne,sans-serif;font-size:1.2rem;' +
                     'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
                     'display:inline;visibility:visible;';
-                // Also ensure the parent button is visible
                 var btn = el.closest('button') || el;
                 if (btn.tagName === 'BUTTON') {
                     btn.style.visibility = 'visible';
@@ -872,6 +873,54 @@ def inject_js() -> None:
         });
     }
 
+    /* ── add hint label next to the ">>" open-sidebar button ── */
+    function patchSidebarLabel() {
+        var doc = window.parent.document;
+        var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+
+        /* Find the ">>" open button that lives OUTSIDE the sidebar */
+        var openBtn = null;
+        doc.querySelectorAll('button').forEach(function(btn) {
+            if (sidebar && sidebar.contains(btn)) return;
+            var txt = (btn.textContent || '').trim();
+            if (txt === '>>') openBtn = btn;
+        });
+
+        /* Remove stale labels */
+        doc.querySelectorAll('.nafta-sidebar-hint').forEach(function(el) { el.remove(); });
+
+        if (!openBtn) return; /* sidebar is open — no hint needed */
+
+        var container = openBtn.closest('[data-testid]') || openBtn.parentElement;
+        if (!container) return;
+
+        var hint = doc.createElement('div');
+        hint.className = 'nafta-sidebar-hint';
+        hint.textContent = 'Noklikšķiniet šeit, lai atlasītu vajadzīgas opcijas';
+        hint.style.cssText = [
+            'font-size:0.6rem',
+            'color:#00ff7f',
+            'font-family:Syne,sans-serif',
+            'margin-top:6px',
+            'text-align:center',
+            'white-space:normal',
+            'cursor:pointer',
+            'line-height:1.25',
+            'max-width:58px',
+            'word-break:break-word',
+            'opacity:0.9'
+        ].join(';');
+        hint.onclick = function() { openBtn.click(); };
+
+        /* Insert the hint right after the toggle container */
+        if (container.nextSibling) {
+            container.parentElement.insertBefore(hint, container.nextSibling);
+        } else {
+            container.parentElement.appendChild(hint);
+        }
+    }
+
+    /* ── style the geolocation component button ── */
     function patchGeoBtn() {
         var doc = window.parent.document;
         doc.querySelectorAll('iframe').forEach(function(fr) {
@@ -902,12 +951,87 @@ def inject_js() -> None:
         });
     }
 
+    /* ── auto-open sidebar on first visit (sessionStorage guard) ── */
+    function autoOpenSidebar() {
+        try {
+            if (window.parent.sessionStorage.getItem('nafta_sb_opened')) return;
+        } catch(e) {}
+
+        var tries = 0;
+        var t = setInterval(function() {
+            tries++;
+            if (tries > 80) { clearInterval(t); return; }
+            var doc = window.parent.document;
+            var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+            if (!sidebar) return;
+
+            /* Already visible — mark done */
+            var rect = sidebar.getBoundingClientRect();
+            if (rect.width > 100 && rect.left > -20) {
+                try { window.parent.sessionStorage.setItem('nafta_sb_opened', '1'); } catch(e) {}
+                clearInterval(t);
+                return;
+            }
+
+            /* 1. Click any known sidebar-toggle button */
+            var selectors = [
+                '[data-testid="stSidebarCollapsedControl"] button',
+                '[data-testid="stSidebarCollapsedControl"]',
+                '[data-testid="collapsedControl"] button',
+                '[data-testid="collapsedControl"]',
+                'button[data-testid="stBaseButton-headerNoPadding"]',
+                'button[aria-label*="sidebar"]',
+                'button[aria-label*="Sidebar"]',
+            ];
+            for (var i = 0; i < selectors.length; i++) {
+                var btn = doc.querySelector(selectors[i]);
+                if (btn && btn.offsetParent !== null) {
+                    btn.click();
+                    try { window.parent.sessionStorage.setItem('nafta_sb_opened', '1'); } catch(e) {}
+                    clearInterval(t);
+                    return;
+                }
+            }
+
+            /* 2. Look for any ">>" or "keyboard_double_arrow_right" button outside sidebar */
+            var allBtns = doc.querySelectorAll('button');
+            for (var j = 0; j < allBtns.length; j++) {
+                var b = allBtns[j];
+                if (sidebar.contains(b)) continue;
+                var txt = (b.textContent || '').trim();
+                if (txt === '>>' || txt === 'keyboard_double_arrow_right') {
+                    b.click();
+                    try { window.parent.sessionStorage.setItem('nafta_sb_opened', '1'); } catch(e) {}
+                    clearInterval(t);
+                    return;
+                }
+            }
+
+            /* 3. Last resort: force sidebar visible via direct style */
+            if (tries > 50) {
+                [sidebar, sidebar.parentElement].forEach(function(el) {
+                    if (!el) return;
+                    el.style.setProperty('display', 'block', 'important');
+                    el.style.setProperty('visibility', 'visible', 'important');
+                    el.style.setProperty('transform', 'none', 'important');
+                    el.style.setProperty('left', '0', 'important');
+                });
+                try { window.parent.sessionStorage.setItem('nafta_sb_opened', '1'); } catch(e) {}
+                clearInterval(t);
+            }
+        }, 200);
+    }
+
     function run() {
         patchArrows();
         patchGeoBtn();
+        patchSidebarLabel();
     }
     run();
-    setInterval(run, 500);
+    setInterval(run, 600);
+
+    /* Auto-open runs once per browser session */
+    autoOpenSidebar();
 })();
 </script>""",
         height=0,
@@ -1176,57 +1300,6 @@ def main() -> None:
     light_mode = st.session_state.get("light_mode", False)
     inject_css(light_mode)
     inject_js()
-
-    # ── Auto-open sidebar on very first visit (mobile + any browser) ─────────
-    if "_welcomed" not in st.session_state:
-        st.session_state["_welcomed"] = True
-        components.html(
-            """<script>
-(function openSidebar() {
-    var tries = 0;
-    var t = setInterval(function() {
-        tries++;
-        if (tries > 60) { clearInterval(t); return; }
-        var doc = window.parent.document;
-        var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
-        if (!sidebar) return;
-
-        // Already open: sidebar wider than 60 px
-        var rect = sidebar.getBoundingClientRect();
-        if (rect.width > 60) { clearInterval(t); return; }
-
-        // 1. Try every known toggle-button selector (order matters)
-        var selectors = [
-            '[data-testid="stSidebarCollapsedControl"] button',
-            '[data-testid="collapsedControl"] button',
-            '[data-testid="collapsedControl"]',
-            'button[data-testid="stBaseButton-headerNoPadding"]',
-            'button[aria-label*="sidebar"]',
-            'button[aria-label*="Sidebar"]',
-            'button[aria-label*="menu"]',
-            'button[aria-label*="Menu"]',
-            'header button',
-        ];
-        for (var i = 0; i < selectors.length; i++) {
-            var btn = doc.querySelector(selectors[i]);
-            if (btn && btn.offsetParent !== null) {
-                btn.click();
-                clearInterval(t);
-                return;
-            }
-        }
-
-        // 2. Fallback: force sidebar visible via style overrides
-        sidebar.style.setProperty('transform', 'none', 'important');
-        sidebar.style.setProperty('left', '0', 'important');
-        sidebar.style.setProperty('display', 'block', 'important');
-        sidebar.style.setProperty('visibility', 'visible', 'important');
-        clearInterval(t);
-    }, 150);
-})();
-</script>""",
-            height=0,
-        )
 
     # ── Auto-close sidebar after scrape refresh ──────────────────────────────
     if st.session_state.pop("_close_sidebar", False):
