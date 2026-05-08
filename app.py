@@ -836,6 +836,22 @@ hr {{
 ::-webkit-scrollbar-track {{ background: {c_scrollbar}; }}
 ::-webkit-scrollbar-thumb {{ background: {c_scrollthumb}; border-radius: 3px; }}
 
+/* ── Black outline on all green text (readable on both dark & light bg) ── */
+.price-discount,
+.gift-badge,
+.section-header .accent,
+.analytic-value,
+.top-badge,
+.promo-final,
+.stRadio label:has(input:checked),
+[data-baseweb="tag"] {{
+    text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000 !important;
+}}
+
 /* ── Hide default chrome ── */
 #MainMenu, footer {{ visibility: hidden; }}
 </style>
@@ -863,7 +879,8 @@ def inject_js() -> None:
                 el.style.cssText =
                     'font-family:Syne,sans-serif;font-size:1.2rem;' +
                     'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
-                    'display:inline;visibility:visible;';
+                    'display:inline;visibility:visible;' +
+                    'text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;';
                 var btn = el.closest('button') || el;
                 if (btn.tagName === 'BUTTON') {
                     btn.style.visibility = 'visible';
@@ -1070,7 +1087,8 @@ def render_sidebar() -> tuple[str, list[str], list[str]]:
         )
     st.sidebar.markdown(
         '<div style="font-family:\'Syne\',sans-serif;font-size:1.3rem;'
-        'font-weight:800;color:#00ff7f;letter-spacing:.05em;">Degvielas<span style="color:#fff;">.</span>lv</div>'
+        'font-weight:800;color:#00ff7f;letter-spacing:.05em;'
+        'text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">Degvielas<span style="color:#fff;">.</span>lv</div>'
         '<div style="font-size:.68rem;color:#4b5563;text-transform:uppercase;'
         'letter-spacing:.12em;margin-bottom:12px;">Cenas reāllaikā</div>'
         '<div style="font-family:\'Inter\',sans-serif;font-size:1rem;'
@@ -1190,7 +1208,8 @@ def build_card_html(
         f'<img src="{logo_b64}" class="station-logo" alt="{station["name"]}">'
         if logo_b64 else
         f'<span style="font-family:Syne,sans-serif;font-size:1.1rem;'
-        f'font-weight:800;color:#00ff7f;">{station["name"]}</span>'
+        f'font-weight:800;color:#00ff7f;'
+        f'text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">{station["name"]}</span>'
     )
 
     # ── Error badge ─────────────────────────────────────────────────────────
@@ -1333,7 +1352,8 @@ def main() -> None:
         st.markdown(
             f'<h1 style="font-family:Syne,sans-serif;font-size:2.2rem;'
             f'font-weight:800;color:{heading_color};margin-bottom:2px;">'
-            f'⛽ Degvielas <span style="color:#00ff7f;">Cenas</span> Latvijā</h1>'
+            f'⛽ Degvielas <span style="color:#00ff7f;'
+            f'text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">Cenas</span> Latvijā</h1>'
             f'<p style="color:{sub_color};font-size:.85rem;margin-bottom:24px;">'
             f'Reāllaika cenas no Circle K · Neste · Viada · Virši</p>',
             unsafe_allow_html=True,
