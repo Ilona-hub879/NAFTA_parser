@@ -164,6 +164,22 @@ FUEL_MAP: dict[str, list[str]] = {
 
 PRICE_RE = re.compile(r"\b([01]\.\d{3}|[12]\.\d{2,3})\b")
 
+# Realistic price ranges for Latvian fuel (2025–2026).
+# Values outside these bounds are rejected as parser noise.
+_PRICE_RANGE: dict[str, tuple[float, float]] = {
+    "95":     (1.50, 2.15),
+    "98":     (1.55, 2.20),
+    "D":      (1.50, 2.15),
+    "LPG":    (0.60, 1.40),
+    "AdBlue": (0.50, 1.30),
+}
+
+
+def _plausible(fuel: str, price: float) -> bool:
+    """Return True if price is within the expected range for the given fuel."""
+    lo, hi = _PRICE_RANGE.get(fuel, (0.50, 2.50))
+    return lo <= price <= hi
+
 # Keywords that signal a promotional offer on the page
 PROMO_KEYWORDS: list[str] = [
     # Latvian
@@ -414,13 +430,9 @@ async def _navigate(page: Page, url: str, name: str) -> None:
         raise ScraperError(name, f"navigation error: {exc}", recoverable=True)
 
 
-def _max_prices(collected: dict[str, list[float]]) -> dict[str, float]:
-    """Return the maximum price per fuel type from collected candidates.
-
-    Using max (not first/min) ensures we pick the standard pump price rather
-    than a loyalty-card or promotional price which appears lower on the page.
-    """
-    return {fuel: max(vals) for fuel, vals in collected.items()}
+def _best_price(collected: dict[str, list[float]]) -> dict[str, float]:
+    """Return the first plausible price per fuel type from collected candidates."""
+    return {fuel: vals[0] for fuel, vals in collected.items() if vals}
 
 
 async def scrape_page(
@@ -436,31 +448,32 @@ async def scrape_page(
     Strategy 1  Block / list / dl elements with class fragments.
     Strategy 2  Raw body text, line by line.
 
-    Collects ALL candidate prices per fuel type, then returns the maximum
-    to avoid mistaking a card/promo price for the standard pump price.
+    First plausible price per fuel wins; values outside _PRICE_RANGE are
+    ignored to prevent stray numbers from corrupting results.
 
     Returns {fuel_key: price_float}.
     Raises ScraperError on navigation failure.
     """
+    prices: dict[str, float] = {}
+
     await _navigate(page, url, name)
 
     # ── Strategy 0: site-specific selectors (ordered, most specific first) ──
     if site_selectors:
         for selector in site_selectors:
-            collected: dict[str, list[float]] = {}
             try:
                 elements = await page.query_selector_all(selector)
                 for el in elements:
                     text  = await el.inner_text()
                     fuel  = match_fuel(text)
                     price = parse_price(text)
-                    if fuel and price:
-                        collected.setdefault(fuel, []).append(price)
+                    if fuel and price and _plausible(fuel, price) and fuel not in prices:
+                        prices[fuel] = price
             except Exception:
                 continue
-            if collected:
+            if prices:
                 print(f"      selector hit: {selector!r}")
-                return _max_prices(collected)
+                return prices
 
     # ── Strategy 1: generic block / list / dl elements ───────────────────────
     block_selectors = [
@@ -470,39 +483,37 @@ async def scrape_page(
         "li", "dl dt", "dl dd", ".item",
     ]
     for selector in block_selectors:
-        collected = {}
         try:
             elements = await page.query_selector_all(selector)
             for el in elements:
                 text  = await el.inner_text()
                 fuel  = match_fuel(text)
                 price = parse_price(text)
-                if fuel and price:
-                    collected.setdefault(fuel, []).append(price)
+                if fuel and price and _plausible(fuel, price) and fuel not in prices:
+                    prices[fuel] = price
         except Exception:
             continue
-        if collected:
+        if prices:
             print(f"      generic selector hit: {selector!r}")
-            return _max_prices(collected)
+            return prices
 
     # ── Strategy 2: raw body text ────────────────────────────────────────────
-    collected = {}
     try:
         body = await page.inner_text("body")
         for line in body.splitlines():
             fuel  = match_fuel(line)
             price = parse_price(line)
-            if fuel and price:
-                collected.setdefault(fuel, []).append(price)
-        if collected:
+            if fuel and price and _plausible(fuel, price) and fuel not in prices:
+                prices[fuel] = price
+        if prices:
             print("      text-fallback hit")
     except Exception as exc:
         print(f"      body text error: {exc}")
 
-    if not collected:
+    if not prices:
         raise ScraperError(name, "no prices found by any strategy", recoverable=True)
 
-    return _max_prices(collected)
+    return prices
 
 
 # ---------------------------------------------------------------------------
@@ -652,13 +663,12 @@ def _prices_from_html(raw_html: str) -> dict[str, float]:
               "95" inside a price like "1.095"), parse_price from other cells.
     Pass 2 — strip all tags, scan plain-text lines split at | : – delimiters.
 
-    Strategy: collect ALL prices seen per fuel, then return the MAXIMUM.
-    Rationale: price pages often list both a loyalty-card price (lower) and the
-    standard pump price (higher) in separate rows.  The standard pump price is
-    always the highest value, so max() reliably picks the shelf price rather
-    than a promotional / card-discounted one.
+    Strategy: first plausible price per fuel wins.
+    Prices outside the realistic range for Latvian fuel (_PRICE_RANGE) are
+    silently skipped so that stray numbers (product codes, non-fuel amounts)
+    cannot corrupt the result.
     """
-    all_prices: dict[str, list[float]] = {}
+    prices: dict[str, float] = {}
 
     # Pass 1: table rows — fuel from first cell, price from subsequent cells
     for tr_m in _TR_RE.finditer(raw_html):
@@ -680,14 +690,14 @@ def _prices_from_html(raw_html: str) -> dict[str, float]:
 
         for cell in cells[1:]:
             price = parse_price(cell)
-            if price:
-                all_prices.setdefault(fuel, []).append(price)
+            if price and _plausible(fuel, price) and fuel not in prices:
+                prices[fuel] = price
                 break
 
-    if all_prices:
-        return {fuel: max(vals) for fuel, vals in all_prices.items()}
+    if prices:
+        return prices
 
-    # Pass 2: plain-text fallback (also collect all, return max)
+    # Pass 2: plain-text fallback
     plain = _html_mod.unescape(_TAG_RE.sub(" ", raw_html))
     for line in plain.splitlines():
         line = line.strip()
@@ -696,10 +706,10 @@ def _prices_from_html(raw_html: str) -> dict[str, float]:
         parts = re.split(r"[|:–—]", line, maxsplit=1)
         fuel  = match_fuel(parts[0])
         price = parse_price(parts[1] if len(parts) > 1 else line)
-        if fuel and price:
-            all_prices.setdefault(fuel, []).append(price)
+        if fuel and price and _plausible(fuel, price) and fuel not in prices:
+            prices[fuel] = price
 
-    return {fuel: max(vals) for fuel, vals in all_prices.items()}
+    return prices
 
 
 _IMG_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
@@ -763,6 +773,9 @@ def _scrape_viada_http(raw: str) -> dict[str, float]:
             has_true_dus = bool(re.search(r"(?<!A)DUS\s", stations_upper))
             if has_true_dus:
                 is_adus_only = False
+
+        if not _plausible(fuel, price):
+            continue  # reject stray numbers outside realistic fuel-price range
 
         if is_adus_only:
             # ADUS: keep the minimum (cheapest automated station)
@@ -892,18 +905,17 @@ async def scrape_all(debug: bool = False) -> dict:
                     except ScraperError as exc:
                         pw_errors[station_id] = exc.reason
                         print(f"      {'⚠' if exc.recoverable else '✗'}  {exc}")
-                        # Try text salvage (collect all, take max per fuel)
+                        # Try text salvage (first plausible price per fuel)
                         if exc.recoverable:
                             try:
                                 body = await page.inner_text("body")
-                                salvage_col: dict[str, list[float]] = {}
+                                salvaged: dict[str, float] = {}
                                 for line in body.splitlines():
                                     fuel  = match_fuel(line)
                                     price = parse_price(line)
-                                    if fuel and price:
-                                        salvage_col.setdefault(fuel, []).append(price)
-                                if salvage_col:
-                                    salvaged = _max_prices(salvage_col)
+                                    if fuel and price and _plausible(fuel, price) and fuel not in salvaged:
+                                        salvaged[fuel] = price
+                                if salvaged:
                                     pw_prices[station_id] = salvaged
                                     del pw_errors[station_id]
                                     print(f"      ↪  salvaged {len(salvaged)} prices")
