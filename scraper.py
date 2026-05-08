@@ -638,15 +638,21 @@ def _prices_from_html(raw_html: str) -> dict[str, float]:
     Pass 1 — find <tr> rows; match_fuel on the FIRST cell only (avoids matching
               "95" inside a price like "1.095"), parse_price from other cells.
     Pass 2 — strip all tags, scan plain-text lines split at | : – delimiters.
+
+    Strategy: collect ALL prices seen per fuel, then return the MAXIMUM.
+    Rationale: price pages often list both a loyalty-card price (lower) and the
+    standard pump price (higher) in separate rows.  The standard pump price is
+    always the highest value, so max() reliably picks the shelf price rather
+    than a promotional / card-discounted one.
     """
-    prices: dict[str, float] = {}
+    all_prices: dict[str, list[float]] = {}
 
     # Pass 1: table rows — fuel from first cell, price from subsequent cells
     for tr_m in _TR_RE.finditer(raw_html):
         raw_cells = _CELL_RE.findall(tr_m.group(1))
         cells = [
             _html_mod.unescape(_TAG_RE.sub(" ", c))
-            .replace("\xa0", " ").replace("\u2009", " ")  # non-breaking / thin space → space
+            .replace("\xa0", " ").replace("\u2009", " ")
             .strip()
             for c in raw_cells
         ]
@@ -661,14 +667,14 @@ def _prices_from_html(raw_html: str) -> dict[str, float]:
 
         for cell in cells[1:]:
             price = parse_price(cell)
-            if price and fuel not in prices:
-                prices[fuel] = price
+            if price:
+                all_prices.setdefault(fuel, []).append(price)
                 break
 
-    if prices:
-        return prices
+    if all_prices:
+        return {fuel: max(vals) for fuel, vals in all_prices.items()}
 
-    # Pass 2: plain-text fallback
+    # Pass 2: plain-text fallback (also collect all, return max)
     plain = _html_mod.unescape(_TAG_RE.sub(" ", raw_html))
     for line in plain.splitlines():
         line = line.strip()
@@ -677,10 +683,10 @@ def _prices_from_html(raw_html: str) -> dict[str, float]:
         parts = re.split(r"[|:–—]", line, maxsplit=1)
         fuel  = match_fuel(parts[0])
         price = parse_price(parts[1] if len(parts) > 1 else line)
-        if fuel and price and fuel not in prices:
-            prices[fuel] = price
+        if fuel and price:
+            all_prices.setdefault(fuel, []).append(price)
 
-    return prices
+    return {fuel: max(vals) for fuel, vals in all_prices.items()}
 
 
 _IMG_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
@@ -746,10 +752,14 @@ def _scrape_viada_http(raw: str) -> dict[str, float]:
                 is_adus_only = False
 
         if is_adus_only:
+            # ADUS: keep the minimum (cheapest automated station)
             if fuel not in adus_prices or price < adus_prices[fuel]:
                 adus_prices[fuel] = price
         else:
-            if fuel not in dus_prices or price < dus_prices[fuel]:
+            # DUS: keep the MAXIMUM price — the page is "zemakas cenas" (cheapest
+            # prices), so the highest DUS value reflects the majority of standard
+            # full-service stations rather than the rare cheapest outlier.
+            if fuel not in dus_prices or price > dus_prices[fuel]:
                 dus_prices[fuel] = price
 
     # Persist ADUS prices for scrape_all() to attach to the station record
@@ -992,7 +1002,7 @@ def generate_demo() -> dict:
             ],
         },
         "neste": {
-            "prices":  {"95": 1.837, "98": 1.907, "D": 2.147},
+            "prices":  {"95": 1.827, "98": 1.897, "D": 1.967},
             "trends":  {"95": "stable", "98": "stable", "D": "stable"},
             "promos": [
                 {
@@ -1000,16 +1010,16 @@ def generate_demo() -> dict:
                     "discount_eur": 0.06,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.837 - 0.06, 3),
-                        "98": round(1.907 - 0.06, 3),
-                        "D":  round(2.147 - 0.06, 3),
+                        "95": round(1.827 - 0.06, 3),
+                        "98": round(1.897 - 0.06, 3),
+                        "D":  round(1.967 - 0.06, 3),
                     },
                 },
             ],
         },
         "viada": {
-            "prices":      {"95": 1.747, "98": 1.852, "D": 1.947, "LPG": 0.985},
-            "adus_prices": {"95": 1.747, "98": 1.852, "D": 1.817, "LPG": 0.985},
+            "prices":      {"95": 1.777, "98": 1.882, "D": 1.977, "LPG": 0.985},
+            "adus_prices": {"95": 1.747, "98": 1.852, "D": 1.817, "LPG": 0.945},
             "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {
@@ -1017,8 +1027,8 @@ def generate_demo() -> dict:
                     "discount_eur": 0.025,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.747 - 0.025, 3),
-                        "D":  round(1.947 - 0.025, 3),
+                        "95": round(1.777 - 0.025, 3),
+                        "D":  round(1.977 - 0.025, 3),
                     },
                 },
                 {
@@ -1026,8 +1036,8 @@ def generate_demo() -> dict:
                     "discount_eur": 0.035,
                     "fuel":         None,
                     "final_prices": {
-                        "95": round(1.747 - 0.035, 3),
-                        "D":  round(1.947 - 0.035, 3),
+                        "95": round(1.777 - 0.035, 3),
+                        "D":  round(1.977 - 0.035, 3),
                     },
                 },
             ],
