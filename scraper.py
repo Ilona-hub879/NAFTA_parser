@@ -414,6 +414,15 @@ async def _navigate(page: Page, url: str, name: str) -> None:
         raise ScraperError(name, f"navigation error: {exc}", recoverable=True)
 
 
+def _max_prices(collected: dict[str, list[float]]) -> dict[str, float]:
+    """Return the maximum price per fuel type from collected candidates.
+
+    Using max (not first/min) ensures we pick the standard pump price rather
+    than a loyalty-card or promotional price which appears lower on the page.
+    """
+    return {fuel: max(vals) for fuel, vals in collected.items()}
+
+
 async def scrape_page(
     page: Page,
     url: str,
@@ -427,29 +436,31 @@ async def scrape_page(
     Strategy 1  Block / list / dl elements with class fragments.
     Strategy 2  Raw body text, line by line.
 
+    Collects ALL candidate prices per fuel type, then returns the maximum
+    to avoid mistaking a card/promo price for the standard pump price.
+
     Returns {fuel_key: price_float}.
     Raises ScraperError on navigation failure.
     """
-    prices: dict[str, float] = {}
-
     await _navigate(page, url, name)
 
     # ── Strategy 0: site-specific selectors (ordered, most specific first) ──
     if site_selectors:
         for selector in site_selectors:
+            collected: dict[str, list[float]] = {}
             try:
                 elements = await page.query_selector_all(selector)
                 for el in elements:
-                    text = await el.inner_text()
+                    text  = await el.inner_text()
                     fuel  = match_fuel(text)
                     price = parse_price(text)
-                    if fuel and price and fuel not in prices:
-                        prices[fuel] = price
+                    if fuel and price:
+                        collected.setdefault(fuel, []).append(price)
             except Exception:
                 continue
-            if prices:
+            if collected:
                 print(f"      selector hit: {selector!r}")
-                return prices
+                return _max_prices(collected)
 
     # ── Strategy 1: generic block / list / dl elements ───────────────────────
     block_selectors = [
@@ -459,37 +470,39 @@ async def scrape_page(
         "li", "dl dt", "dl dd", ".item",
     ]
     for selector in block_selectors:
+        collected = {}
         try:
             elements = await page.query_selector_all(selector)
             for el in elements:
                 text  = await el.inner_text()
                 fuel  = match_fuel(text)
                 price = parse_price(text)
-                if fuel and price and fuel not in prices:
-                    prices[fuel] = price
+                if fuel and price:
+                    collected.setdefault(fuel, []).append(price)
         except Exception:
             continue
-        if prices:
+        if collected:
             print(f"      generic selector hit: {selector!r}")
-            return prices
+            return _max_prices(collected)
 
     # ── Strategy 2: raw body text ────────────────────────────────────────────
+    collected = {}
     try:
         body = await page.inner_text("body")
         for line in body.splitlines():
             fuel  = match_fuel(line)
             price = parse_price(line)
-            if fuel and price and fuel not in prices:
-                prices[fuel] = price
-        if prices:
+            if fuel and price:
+                collected.setdefault(fuel, []).append(price)
+        if collected:
             print("      text-fallback hit")
     except Exception as exc:
         print(f"      body text error: {exc}")
 
-    if not prices:
+    if not collected:
         raise ScraperError(name, "no prices found by any strategy", recoverable=True)
 
-    return prices
+    return _max_prices(collected)
 
 
 # ---------------------------------------------------------------------------
@@ -595,7 +608,7 @@ SCRAPERS = {
 # (e.g. Virši on Streamlit Cloud where Chromium is unavailable).
 # Updated to reflect April 2026 actual scraped values.
 _STATIC_PRICES: dict[str, dict[str, float]] = {
-    "virsi": {"95": 1.854, "98": 1.907, "D": 2.147, "LPG": 1.085, "AdBlue": 0.845},
+    "virsi": {"95": 1.827, "98": 1.897, "D": 1.967, "LPG": 1.055, "AdBlue": 0.845},
 }
 
 # Side-effect cache: filled by _scrape_viada_http, consumed by scrape_all()
@@ -879,17 +892,18 @@ async def scrape_all(debug: bool = False) -> dict:
                     except ScraperError as exc:
                         pw_errors[station_id] = exc.reason
                         print(f"      {'⚠' if exc.recoverable else '✗'}  {exc}")
-                        # Try text salvage
+                        # Try text salvage (collect all, take max per fuel)
                         if exc.recoverable:
                             try:
                                 body = await page.inner_text("body")
-                                salvaged: dict[str, float] = {}
+                                salvage_col: dict[str, list[float]] = {}
                                 for line in body.splitlines():
                                     fuel  = match_fuel(line)
                                     price = parse_price(line)
-                                    if fuel and price and fuel not in salvaged:
-                                        salvaged[fuel] = price
-                                if salvaged:
+                                    if fuel and price:
+                                        salvage_col.setdefault(fuel, []).append(price)
+                                if salvage_col:
+                                    salvaged = _max_prices(salvage_col)
                                     pw_prices[station_id] = salvaged
                                     del pw_errors[station_id]
                                     print(f"      ↪  salvaged {len(salvaged)} prices")
@@ -1043,24 +1057,24 @@ def generate_demo() -> dict:
             ],
         },
         "virsi": {
-            "prices":  {"95": 1.854, "98": 1.907, "D": 2.147, "LPG": 1.085, "AdBlue": 0.845},
+            "prices":  {"95": 1.827, "98": 1.897, "D": 1.967, "LPG": 1.055, "AdBlue": 0.845},
             "trends":  {"95": "stable", "98": "stable", "D": "stable", "LPG": "stable"},
             "promos": [
                 {
                     "promo_text":   "Nedēļas nogales akcija: atlaide -10 c/l benzīnam AI-95 sestdienā un svētdienā",
                     "discount_eur": 0.10,
                     "fuel":         "95",
-                    "final_prices": {"95": round(1.854 - 0.10, 3)},
+                    "final_prices": {"95": round(1.827 - 0.10, 3)},
                 },
                 {
                     "promo_text":   "Virši+ karte: -5 c/l visām degvielas veidiem",
                     "discount_eur": 0.05,
                     "fuel":         None,
                     "final_prices": {
-                        "95":  round(1.854 - 0.05, 3),
-                        "98":  round(1.907 - 0.05, 3),
-                        "D":   round(2.147 - 0.05, 3),
-                        "LPG": round(1.085 - 0.05, 3),
+                        "95":  round(1.827 - 0.05, 3),
+                        "98":  round(1.897 - 0.05, 3),
+                        "D":   round(1.967 - 0.05, 3),
+                        "LPG": round(1.055 - 0.05, 3),
                     },
                 },
             ],
