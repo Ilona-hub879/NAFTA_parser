@@ -495,9 +495,7 @@ html, body, [class*="css"] {{
     color: {c_text} !important;
     font-family: 'Inter', sans-serif !important;
 }}
-[data-testid="collapsedControl"] {{
-    display: none !important;
-}}
+/* Sidebar toggle: keep visible so JS can click it; just hide the raw icon text */
 button[title*="keyboard"],
 button[aria-label*="keyboard"] {{
     display: none !important;
@@ -854,24 +852,24 @@ def inject_js() -> None:
         """<script>
 (function patchUI() {
     function patchArrows() {
-        window.parent.document
-            .querySelectorAll('button span, button p')
-            .forEach(function(el) {
-                var t = (el.textContent || '').trim();
-                if (t === 'keyboard_double_arrow_left') {
-                    el.textContent = '<<';
-                    el.style.cssText =
-                        'font-family:Syne,sans-serif;font-size:1.2rem;' +
-                        'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
-                        'display:inline;';
-                } else if (t === 'keyboard_double_arrow_right') {
-                    el.textContent = '>>';
-                    el.style.cssText =
-                        'font-family:Syne,sans-serif;font-size:1.2rem;' +
-                        'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
-                        'display:inline;';
+        var doc = window.parent.document;
+        doc.querySelectorAll('button span, button p, button').forEach(function(el) {
+            var t = (el.textContent || '').trim();
+            if (t === 'keyboard_double_arrow_left' || t === 'keyboard_double_arrow_right') {
+                var arrow = (t === 'keyboard_double_arrow_left') ? '<<' : '>>';
+                el.textContent = arrow;
+                el.style.cssText =
+                    'font-family:Syne,sans-serif;font-size:1.2rem;' +
+                    'font-weight:700;color:#00ff7f;letter-spacing:normal;' +
+                    'display:inline;visibility:visible;';
+                // Also ensure the parent button is visible
+                var btn = el.closest('button') || el;
+                if (btn.tagName === 'BUTTON') {
+                    btn.style.visibility = 'visible';
+                    btn.style.display = 'flex';
                 }
-            });
+            }
+        });
     }
 
     function patchGeoBtn() {
@@ -1179,7 +1177,7 @@ def main() -> None:
     inject_css(light_mode)
     inject_js()
 
-    # ── Auto-open sidebar on very first visit (mobile fallback) ─────────────
+    # ── Auto-open sidebar on very first visit (mobile + any browser) ─────────
     if "_welcomed" not in st.session_state:
         st.session_state["_welcomed"] = True
         components.html(
@@ -1188,19 +1186,42 @@ def main() -> None:
     var tries = 0;
     var t = setInterval(function() {
         tries++;
-        if (tries > 40) { clearInterval(t); return; }
+        if (tries > 60) { clearInterval(t); return; }
         var doc = window.parent.document;
         var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
         if (!sidebar) return;
-        // Already open if width > 60px
-        if (sidebar.getBoundingClientRect().width > 60) { clearInterval(t); return; }
-        // Try every known toggle-button selector
-        var btn = doc.querySelector('button[data-testid="stBaseButton-headerNoPadding"]')
-               || doc.querySelector('[data-testid="stSidebarCollapsedControl"] button')
-               || doc.querySelector('[data-testid="collapsedControl"] button')
-               || doc.querySelector('button[aria-label*="sidebar"]')
-               || doc.querySelector('button[aria-label*="Sidebar"]');
-        if (btn) { btn.click(); clearInterval(t); }
+
+        // Already open: sidebar wider than 60 px
+        var rect = sidebar.getBoundingClientRect();
+        if (rect.width > 60) { clearInterval(t); return; }
+
+        // 1. Try every known toggle-button selector (order matters)
+        var selectors = [
+            '[data-testid="stSidebarCollapsedControl"] button',
+            '[data-testid="collapsedControl"] button',
+            '[data-testid="collapsedControl"]',
+            'button[data-testid="stBaseButton-headerNoPadding"]',
+            'button[aria-label*="sidebar"]',
+            'button[aria-label*="Sidebar"]',
+            'button[aria-label*="menu"]',
+            'button[aria-label*="Menu"]',
+            'header button',
+        ];
+        for (var i = 0; i < selectors.length; i++) {
+            var btn = doc.querySelector(selectors[i]);
+            if (btn && btn.offsetParent !== null) {
+                btn.click();
+                clearInterval(t);
+                return;
+            }
+        }
+
+        // 2. Fallback: force sidebar visible via style overrides
+        sidebar.style.setProperty('transform', 'none', 'important');
+        sidebar.style.setProperty('left', '0', 'important');
+        sidebar.style.setProperty('display', 'block', 'important');
+        sidebar.style.setProperty('visibility', 'visible', 'important');
+        clearInterval(t);
     }, 150);
 })();
 </script>""",
@@ -1247,8 +1268,9 @@ def main() -> None:
         toggle_icon = "☀️" if not light_mode else "🌙"
         toggle_help = "Pārslēgt uz gaišo tēmu" if not light_mode else "Pārslēgt uz tumšo tēmu"
         if st.button(toggle_icon, key="theme_toggle", help=toggle_help):
+            # Don't call st.rerun() — the button click already triggers a rerun.
+            # Calling it early would interrupt render_sidebar() and orphan widget keys.
             st.session_state["light_mode"] = not light_mode
-            st.rerun()
 
     # ── Sidebar ──────────────────────────────────────────────────────────────
     selected_fuel, loyalty_keys, amenity_filter = render_sidebar()
