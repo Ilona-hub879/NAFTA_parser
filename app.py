@@ -908,7 +908,8 @@ def inject_js() -> None:
             'line-height:1.25',
             'max-width:58px',
             'word-break:break-word',
-            'opacity:0.9'
+            'opacity:0.95',
+            'text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000'
         ].join(';');
         hint.onclick = function() { openBtn.click(); };
 
