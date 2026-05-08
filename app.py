@@ -836,15 +836,13 @@ hr {{
 ::-webkit-scrollbar-track {{ background: {c_scrollbar}; }}
 ::-webkit-scrollbar-thumb {{ background: {c_scrollthumb}; border-radius: 3px; }}
 
-/* ── Black outline on all green text (readable on both dark & light bg) ── */
+/* ── Black outline on standalone green text (readable on dark & light bg) ── */
+/* Excluded: elements with their own green bg/border (.gift-badge, .top-badge,  */
+/* .stRadio label:has(input:checked), [data-baseweb="tag"]) — no outline needed */
 .price-discount,
-.gift-badge,
 .section-header .accent,
 .analytic-value,
-.top-badge,
-.promo-final,
-.stRadio label:has(input:checked),
-[data-baseweb="tag"] {{
+.promo-final {{
     text-shadow:
         -1px -1px 0 #000,
          1px -1px 0 #000,
