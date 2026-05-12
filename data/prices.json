@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-12T10:29:43.094858",
+  "scraped_at": "2026-05-12T14:17:21.034166",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-12T10:29:43.094823"
+      "scraped_at": "2026-05-12T14:17:21.034128"
     },
     "neste": {
       "name": "Neste",
@@ -37,8 +37,8 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.837,
-        "98": 1.907,
+        "95": 1.807,
+        "98": 1.877,
         "D": 1.927
       },
       "discounts": {
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "down",
+        "98": "down",
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-12T10:29:43.094835"
+      "scraped_at": "2026-05-12T14:17:21.034141"
     },
     "viada": {
       "name": "Viada",
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "stable",
+        "98": "stable",
         "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-12T10:29:43.094840",
+      "scraped_at": "2026-05-12T14:17:21.034147",
       "adus_prices": {
         "95": 1.767,
         "98": 1.872,
@@ -97,8 +97,8 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.827,
-        "98": 1.897,
+        "95": 1.877,
+        "98": 1.967,
         "LPG": 1.055,
         "AdBlue": 0.845,
         "D": 1.967
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "up",
+        "98": "up",
         "LPG": "stable",
         "AdBlue": "stable",
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-12T10:29:43.094847"
+      "scraped_at": "2026-05-12T14:17:21.034155"
     }
   }
 }
