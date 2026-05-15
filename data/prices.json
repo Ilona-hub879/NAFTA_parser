@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-15T02:51:51.292101",
+  "scraped_at": "2026-05-15T06:55:35.542331",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-15T02:51:51.292064"
+      "scraped_at": "2026-05-15T06:55:35.542291"
     },
     "neste": {
       "name": "Neste",
@@ -37,9 +37,9 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.847,
-        "98": 1.917,
-        "D": 1.897
+        "95": 1.817,
+        "98": 1.887,
+        "D": 1.867
       },
       "discounts": {
         "Neste Card": 0.06
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-05-15T02:51:51.292077"
+      "scraped_at": "2026-05-15T06:55:35.542305"
     },
     "viada": {
       "name": "Viada",
@@ -64,7 +64,7 @@
       "prices": {
         "95": 1.767,
         "98": 1.872,
-        "D": 1.807,
+        "D": 1.894,
         "LPG": 0.945
       },
       "discounts": {
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable",
+        "D": "up",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-15T02:51:51.292082",
+      "scraped_at": "2026-05-15T06:55:35.542311",
       "adus_prices": {
         "95": 1.767,
         "98": 1.872,
@@ -97,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.777,
-        "98": 1.847,
+        "95": 1.897,
+        "98": 1.967,
         "LPG": 1.055,
         "AdBlue": 0.845,
-        "D": 1.797
+        "D": 1.897
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "up",
+        "98": "up",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-05-15T02:51:51.292089"
+      "scraped_at": "2026-05-15T06:55:35.542319"
     }
   }
 }
