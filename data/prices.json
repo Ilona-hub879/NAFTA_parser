@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-19T11:00:03.231471",
+  "scraped_at": "2026-05-19T14:55:11.314306",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -8,7 +8,7 @@
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
         "95": 1.754,
-        "98": 1.624,
+        "98": 1.824,
         "D": 1.814,
         "LPG": 0.995
       },
@@ -24,12 +24,12 @@
       ],
       "trends": {
         "95": "stable",
-        "98": "stable",
+        "98": "up",
         "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-19T11:00:03.231433"
+      "scraped_at": "2026-05-19T14:55:11.314271"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-19T11:00:03.231446"
+      "scraped_at": "2026-05-19T14:55:11.314284"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-19T11:00:03.231451",
+      "scraped_at": "2026-05-19T14:55:11.314288",
       "adus_prices": {
         "95": 1.767,
         "98": 1.872,
@@ -119,7 +119,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-19T11:00:03.231458"
+      "scraped_at": "2026-05-19T14:55:11.314295"
     }
   }
 }
