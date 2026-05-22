@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-05-22T10:47:47.829006",
+  "scraped_at": "2026-05-22T14:33:59.063240",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-22T10:47:47.828972"
+      "scraped_at": "2026-05-22T14:33:59.063199"
     },
     "neste": {
       "name": "Neste",
@@ -37,8 +37,8 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.857,
-        "98": 1.927,
+        "95": 1.847,
+        "98": 1.917,
         "D": 1.867
       },
       "discounts": {
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "down",
+        "98": "down",
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-22T10:47:47.828984"
+      "scraped_at": "2026-05-22T14:33:59.063213"
     },
     "viada": {
       "name": "Viada",
@@ -83,11 +83,11 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-22T10:47:47.828988",
+      "scraped_at": "2026-05-22T14:33:59.063219",
       "adus_prices": {
         "95": 1.777,
         "98": 1.882,
-        "D": 1.787,
+        "D": 1.767,
         "LPG": 0.935
       }
     },
@@ -97,8 +97,8 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.867,
-        "98": 1.947,
+        "95": 1.897,
+        "98": 1.967,
         "LPG": 0.995,
         "AdBlue": 0.845,
         "D": 1.897
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "up",
+        "98": "up",
         "LPG": "stable",
         "AdBlue": "stable",
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-05-22T10:47:47.828995"
+      "scraped_at": "2026-05-22T14:33:59.063227"
     }
   }
 }
