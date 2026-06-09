@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-08T21:48:35.098871",
+  "scraped_at": "2026-06-09T02:49:48.466590",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "down",
-        "98": "down",
-        "D": "down",
-        "LPG": "down"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
+        "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-08T21:48:35.098835"
+      "scraped_at": "2026-06-09T02:49:48.466551"
     },
     "neste": {
       "name": "Neste",
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "down",
-        "98": "down",
-        "D": "down"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-08T21:48:35.098848"
+      "scraped_at": "2026-06-09T02:49:48.466565"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-08T21:48:35.098853",
+      "scraped_at": "2026-06-09T02:49:48.466571",
       "adus_prices": {
         "95": 1.757,
         "98": 1.862,
@@ -97,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.877,
-        "98": 1.947,
-        "LPG": 0.995,
+        "95": 1.717,
+        "98": 1.787,
+        "LPG": 0.895,
         "AdBlue": 0.845,
-        "D": 1.797
+        "D": 1.717
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "LPG": "stable",
+        "95": "down",
+        "98": "down",
+        "LPG": "down",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-06-08T21:48:35.098860"
+      "scraped_at": "2026-06-09T02:49:48.466578"
     }
   }
 }
