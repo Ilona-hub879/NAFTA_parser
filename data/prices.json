@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-25T14:26:01.495955",
+  "scraped_at": "2026-06-25T18:07:47.849797",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -25,11 +25,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "down",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-25T14:26:01.495917"
+      "scraped_at": "2026-06-25T18:07:47.849758"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-25T14:26:01.495931"
+      "scraped_at": "2026-06-25T18:07:47.849772"
     },
     "viada": {
       "name": "Viada",
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "down",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-25T14:26:01.495936",
+      "scraped_at": "2026-06-25T18:07:47.849778",
       "adus_prices": {
         "95": 1.627,
         "98": 1.732,
@@ -119,7 +119,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-06-25T14:26:01.495943"
+      "scraped_at": "2026-06-25T18:07:47.849784"
     }
   }
 }
