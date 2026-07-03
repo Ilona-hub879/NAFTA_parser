@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-03T10:32:37.810222",
+  "scraped_at": "2026-07-03T13:56:39.040685",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-03T10:32:37.810188"
+      "scraped_at": "2026-07-03T13:56:39.040655"
     },
     "neste": {
       "name": "Neste",
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "down",
-        "98": "down",
-        "D": "down"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-03T10:32:37.810200"
+      "scraped_at": "2026-07-03T13:56:39.040667"
     },
     "viada": {
       "name": "Viada",
@@ -65,7 +65,7 @@
         "95": 1.597,
         "98": 1.702,
         "LPG": 0.795,
-        "D": 1.624
+        "D": 1.614
       },
       "discounts": {
         "Viada plus (līdz 70 l)": 0.025,
@@ -80,10 +80,10 @@
         "95": "stable",
         "98": "stable",
         "LPG": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-07-03T10:32:37.810205",
+      "scraped_at": "2026-07-03T13:56:39.040671",
       "adus_prices": {
         "95": 1.597,
         "98": 1.702,
@@ -118,7 +118,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-03T10:32:37.810211"
+      "scraped_at": "2026-07-03T13:56:39.040676"
     }
   }
 }
