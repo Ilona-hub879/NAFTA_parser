@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-17T06:13:01.639999",
+  "scraped_at": "2026-07-17T09:54:24.668425",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.694,
-        "98": 1.764,
-        "D": 1.674,
-        "LPG": 0.865
+        "95": 1.784,
+        "98": 1.854,
+        "D": 1.774,
+        "LPG": 0.995
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
-        "LPG": "stable"
+        "95": "up",
+        "98": "up",
+        "D": "up",
+        "LPG": "up"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T06:13:01.639959"
+      "scraped_at": "2026-07-17T09:54:24.668385"
     },
     "neste": {
       "name": "Neste",
@@ -37,9 +37,9 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.797,
-        "98": 1.867,
-        "D": 1.787
+        "95": 1.767,
+        "98": 1.837,
+        "D": 1.757
       },
       "discounts": {
         "Neste Card": 0.06
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T06:13:01.639973"
+      "scraped_at": "2026-07-17T09:54:24.668399"
     },
     "viada": {
       "name": "Viada",
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up",
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T06:13:01.639979",
+      "scraped_at": "2026-07-17T09:54:24.668405",
       "adus_prices": {
         "95": 1.687,
         "98": 1.792,
@@ -116,10 +116,10 @@
         "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "up"
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T06:13:01.639987"
+      "scraped_at": "2026-07-17T09:54:24.668413"
     }
   }
 }
