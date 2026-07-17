@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-17T02:23:30.436214",
+  "scraped_at": "2026-07-17T06:13:01.639999",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T02:23:30.436174"
+      "scraped_at": "2026-07-17T06:13:01.639959"
     },
     "neste": {
       "name": "Neste",
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T02:23:30.436189"
+      "scraped_at": "2026-07-17T06:13:01.639973"
     },
     "viada": {
       "name": "Viada",
@@ -62,9 +62,9 @@
       "url": "https://www.viada.lv/zemakas-degvielas-cenas/",
       "address": "15+ AZS Latvijā",
       "prices": {
-        "95": 1.657,
-        "98": 1.762,
-        "D": 1.734,
+        "95": 1.687,
+        "98": 1.792,
+        "D": 1.774,
         "LPG": 0.795
       },
       "discounts": {
@@ -77,17 +77,17 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
+        "95": "up",
+        "98": "up",
+        "D": "up",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T02:23:30.436194",
+      "scraped_at": "2026-07-17T06:13:01.639979",
       "adus_prices": {
-        "95": 1.657,
-        "98": 1.762,
-        "D": 1.617,
+        "95": 1.687,
+        "98": 1.792,
+        "D": 1.697,
         "LPG": 0.795
       }
     },
@@ -101,7 +101,7 @@
         "98": 1.867,
         "LPG": 0.895,
         "AdBlue": 0.845,
-        "D": 1.747
+        "D": 1.787
       },
       "discounts": {
         "Virši+": 0.05
@@ -116,10 +116,10 @@
         "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-07-17T02:23:30.436201"
+      "scraped_at": "2026-07-17T06:13:01.639987"
     }
   }
 }
