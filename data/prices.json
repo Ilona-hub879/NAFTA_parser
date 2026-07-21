@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-21T06:25:46.701309",
+  "scraped_at": "2026-07-21T10:23:01.038659",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,9 +7,9 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.814,
-        "98": 1.884,
-        "D": 1.814,
+        "95": 1.884,
+        "98": 1.954,
+        "D": 1.894,
         "LPG": 0.995
       },
       "discounts": {
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
+        "95": "up",
+        "98": "up",
+        "D": "up",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T06:25:46.701274"
+      "scraped_at": "2026-07-21T10:23:01.038621"
     },
     "neste": {
       "name": "Neste",
@@ -37,9 +37,9 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.797,
-        "98": 1.867,
-        "D": 1.797
+        "95": 1.817,
+        "98": 1.887,
+        "D": 1.847
       },
       "discounts": {
         "Neste Card": 0.06
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable"
+        "95": "up",
+        "98": "up",
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T06:25:46.701287"
+      "scraped_at": "2026-07-21T10:23:01.038635"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T06:25:46.701292",
+      "scraped_at": "2026-07-21T10:23:01.038640",
       "adus_prices": {
         "95": 1.687,
         "98": 1.792,
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "stable",
+        "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "up"
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T06:25:46.701299"
+      "scraped_at": "2026-07-21T10:23:01.038648"
     }
   }
 }
