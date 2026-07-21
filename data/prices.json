@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-21T10:23:01.038659",
+  "scraped_at": "2026-07-21T13:41:34.396811",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.884,
-        "98": 1.954,
-        "D": 1.894,
-        "LPG": 0.995
+        "95": 1.834,
+        "98": 1.904,
+        "D": 1.864,
+        "LPG": 0.955
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up",
-        "LPG": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down",
+        "LPG": "down"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T10:23:01.038621"
+      "scraped_at": "2026-07-21T13:41:34.396777"
     },
     "neste": {
       "name": "Neste",
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T10:23:01.038635"
+      "scraped_at": "2026-07-21T13:41:34.396789"
     },
     "viada": {
       "name": "Viada",
@@ -64,7 +64,7 @@
       "prices": {
         "95": 1.687,
         "98": 1.792,
-        "D": 1.814,
+        "D": 1.854,
         "LPG": 0.795
       },
       "discounts": {
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable",
+        "D": "up",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T10:23:01.038640",
+      "scraped_at": "2026-07-21T13:41:34.396794",
       "adus_prices": {
         "95": 1.687,
         "98": 1.792,
@@ -119,7 +119,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-21T10:23:01.038648"
+      "scraped_at": "2026-07-21T13:41:34.396801"
     }
   }
 }
