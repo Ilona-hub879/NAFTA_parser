@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-24T06:23:10.213978",
+  "scraped_at": "2026-07-24T10:13:52.358381",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up",
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-24T06:23:10.213944"
+      "scraped_at": "2026-07-24T10:13:52.358343"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-24T06:23:10.213956"
+      "scraped_at": "2026-07-24T10:13:52.358356"
     },
     "viada": {
       "name": "Viada",
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "up",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-24T06:23:10.213961",
+      "scraped_at": "2026-07-24T10:13:52.358362",
       "adus_prices": {
         "95": 1.727,
         "98": 1.832,
@@ -97,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.744,
-        "98": 1.814,
+        "95": 1.877,
+        "98": 1.947,
         "LPG": 0.955,
         "AdBlue": 0.845,
-        "D": 1.794
+        "D": 1.927
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "up",
+        "98": "up",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-07-24T06:23:10.213968"
+      "scraped_at": "2026-07-24T10:13:52.358369"
     }
   }
 }
