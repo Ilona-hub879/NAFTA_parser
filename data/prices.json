@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-30T02:04:13.723461",
+  "scraped_at": "2026-07-30T06:24:57.766096",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -29,7 +29,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-30T02:04:13.723428"
+      "scraped_at": "2026-07-30T06:24:57.766062"
     },
     "neste": {
       "name": "Neste",
@@ -37,9 +37,9 @@
       "url": "https://www.neste.lv/lv/content/degvielas-cenas",
       "address": "30+ AZS Latvijā",
       "prices": {
-        "95": 1.897,
-        "98": 1.967,
-        "D": 1.957
+        "95": 1.847,
+        "98": 1.917,
+        "D": 1.927
       },
       "discounts": {
         "Neste Card": 0.06
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up"
+        "95": "down",
+        "98": "down",
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-07-30T02:04:13.723439"
+      "scraped_at": "2026-07-30T06:24:57.766074"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-30T02:04:13.723444",
+      "scraped_at": "2026-07-30T06:24:57.766079",
       "adus_prices": {
         "95": 1.747,
         "98": 1.852,
@@ -119,7 +119,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-30T02:04:13.723450"
+      "scraped_at": "2026-07-30T06:24:57.766086"
     }
   }
 }
