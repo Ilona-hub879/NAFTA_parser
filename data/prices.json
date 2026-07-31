@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-07-31T06:41:12.160200",
+  "scraped_at": "2026-07-31T10:35:42.576187",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "down",
+        "95": "stable",
+        "98": "stable",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-31T06:41:12.160164"
+      "scraped_at": "2026-07-31T10:35:42.576153"
     },
     "neste": {
       "name": "Neste",
@@ -49,12 +49,12 @@
         "food"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "D": "up"
+        "95": "stable",
+        "98": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-31T06:41:12.160176"
+      "scraped_at": "2026-07-31T10:35:42.576166"
     },
     "viada": {
       "name": "Viada",
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "up",
+        "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-07-31T06:41:12.160181",
+      "scraped_at": "2026-07-31T10:35:42.576170",
       "adus_prices": {
         "95": 1.747,
         "98": 1.852,
@@ -101,7 +101,7 @@
         "98": 1.954,
         "LPG": 0.955,
         "AdBlue": 0.845,
-        "D": 1.914
+        "D": 1.954
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "stable",
+        "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
         "D": "up"
       },
       "promos": [],
-      "scraped_at": "2026-07-31T06:41:12.160188"
+      "scraped_at": "2026-07-31T10:35:42.576176"
     }
   }
 }
