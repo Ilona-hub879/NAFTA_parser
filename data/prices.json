@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-08-12T05:28:57.327894",
+  "scraped_at": "2026-08-12T09:08:42.245734",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,9 +7,9 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.794,
-        "98": 1.864,
-        "D": 1.894,
+        "95": 1.714,
+        "98": 1.784,
+        "D": 1.784,
         "LPG": 0.905
       },
       "discounts": {
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
+        "95": "down",
+        "98": "down",
+        "D": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-08-12T05:28:57.327855"
+      "scraped_at": "2026-08-12T09:08:42.245695"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-08-12T05:28:57.327869"
+      "scraped_at": "2026-08-12T09:08:42.245709"
     },
     "viada": {
       "name": "Viada",
@@ -64,7 +64,7 @@
       "prices": {
         "95": 1.747,
         "98": 1.852,
-        "D": 1.884,
+        "D": 1.924,
         "LPG": 0.795
       },
       "discounts": {
@@ -79,11 +79,11 @@
       "trends": {
         "95": "stable",
         "98": "stable",
-        "D": "stable",
+        "D": "up",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-08-12T05:28:57.327875",
+      "scraped_at": "2026-08-12T09:08:42.245715",
       "adus_prices": {
         "95": 1.747,
         "98": 1.852,
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "down",
-        "98": "down",
+        "95": "stable",
+        "98": "stable",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "down"
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-08-12T05:28:57.327882"
+      "scraped_at": "2026-08-12T09:08:42.245722"
     }
   }
 }
