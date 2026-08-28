@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-08-28T04:01:23.649969",
+  "scraped_at": "2026-08-28T19:52:41.640600",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.834,
-        "98": 1.904,
-        "D": 1.934,
-        "LPG": 0.895
+        "95": 1.764,
+        "98": 1.834,
+        "D": 1.894,
+        "LPG": 0.845
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
-        "LPG": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down",
+        "LPG": "down"
       },
       "promos": [],
-      "scraped_at": "2026-08-28T04:01:23.649933"
+      "scraped_at": "2026-08-28T19:52:41.640564"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-08-28T04:01:23.649947"
+      "scraped_at": "2026-08-28T19:52:41.640577"
     },
     "viada": {
       "name": "Viada",
@@ -83,7 +83,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-08-28T04:01:23.649952",
+      "scraped_at": "2026-08-28T19:52:41.640582",
       "adus_prices": {
         "95": 1.747,
         "98": 1.852,
@@ -97,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 1.817,
-        "98": 1.887,
+        "95": 1.747,
+        "98": 1.817,
         "LPG": 0.935,
         "AdBlue": 0.865,
-        "D": 1.947
+        "D": 1.877
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "down",
+        "98": "down",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-08-28T04:01:23.649958"
+      "scraped_at": "2026-08-28T19:52:41.640589"
     }
   }
 }
