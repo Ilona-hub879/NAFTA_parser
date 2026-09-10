@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-09-10T08:37:55.782894",
+  "scraped_at": "2026-09-10T15:47:10.760992",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.954,
-        "98": 2.024,
-        "D": 2.054,
-        "LPG": 0.895
+        "95": 1.941,
+        "98": 2.011,
+        "D": 2.041,
+        "LPG": 0.905
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "D": "stable",
-        "LPG": "stable"
+        "95": "down",
+        "98": "down",
+        "D": "down",
+        "LPG": "up"
       },
       "promos": [],
-      "scraped_at": "2026-09-10T08:37:55.782858"
+      "scraped_at": "2026-09-10T15:47:10.760954"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-10T08:37:55.782871"
+      "scraped_at": "2026-09-10T15:47:10.760967"
     },
     "viada": {
       "name": "Viada",
@@ -77,13 +77,13 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "stable",
+        "98": "stable",
         "D": "stable",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-10T08:37:55.782876",
+      "scraped_at": "2026-09-10T15:47:10.760973",
       "adus_prices": {
         "95": 1.877,
         "98": 1.982,
@@ -97,11 +97,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 2.007,
-        "98": 2.077,
-        "LPG": 0.925,
+        "95": 1.954,
+        "98": 2.014,
+        "LPG": 0.905,
         "AdBlue": 0.865,
-        "D": 2.107
+        "D": 2.054
       },
       "discounts": {
         "Virši+": 0.05
@@ -112,14 +112,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
-        "LPG": "stable",
+        "95": "down",
+        "98": "down",
+        "LPG": "down",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-09-10T08:37:55.782883"
+      "scraped_at": "2026-09-10T15:47:10.760980"
     }
   }
 }
