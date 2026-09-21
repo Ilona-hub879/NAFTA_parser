@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-09-21T09:34:26.401870",
+  "scraped_at": "2026-09-21T17:49:53.933249",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,8 +7,8 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 2.074,
-        "98": 2.144,
+        "95": 2.044,
+        "98": 2.114,
         "LPG": 0.925
       },
       "discounts": {
@@ -22,12 +22,12 @@
         "tire"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "down",
+        "98": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-21T09:34:26.401829"
+      "scraped_at": "2026-09-21T17:49:53.933208"
     },
     "neste": {
       "name": "Neste",
@@ -52,7 +52,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-21T09:34:26.401844"
+      "scraped_at": "2026-09-21T17:49:53.933222"
     },
     "viada": {
       "name": "Viada",
@@ -81,7 +81,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-21T09:34:26.401850",
+      "scraped_at": "2026-09-21T17:49:53.933228",
       "adus_prices": {
         "95": 1.897,
         "98": 2.002,
@@ -110,14 +110,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
-        "LPG": "up",
-        "AdBlue": "up",
-        "D": "up"
+        "95": "stable",
+        "98": "stable",
+        "LPG": "stable",
+        "AdBlue": "stable",
+        "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-21T09:34:26.401857"
+      "scraped_at": "2026-09-21T17:49:53.933236"
     }
   }
 }
