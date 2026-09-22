@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-09-22T03:10:26.522454",
+  "scraped_at": "2026-09-22T08:59:59.655747",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,8 +7,8 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 2.044,
-        "98": 2.114,
+        "95": 1.989,
+        "98": 1.989,
         "LPG": 0.925
       },
       "discounts": {
@@ -22,12 +22,12 @@
         "tire"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "down",
+        "98": "down",
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-22T03:10:26.522418"
+      "scraped_at": "2026-09-22T08:59:59.655712"
     },
     "neste": {
       "name": "Neste",
@@ -52,7 +52,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-22T03:10:26.522431"
+      "scraped_at": "2026-09-22T08:59:59.655724"
     },
     "viada": {
       "name": "Viada",
@@ -81,7 +81,7 @@
         "LPG": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-09-22T03:10:26.522436",
+      "scraped_at": "2026-09-22T08:59:59.655730",
       "adus_prices": {
         "95": 1.897,
         "98": 2.002,
@@ -95,11 +95,11 @@
       "url": "https://www.virsi.lv/lv/privatpersonam/elektriba/degvielas-cena",
       "address": "40+ AZS Latvijā",
       "prices": {
-        "95": 2.064,
-        "98": 2.134,
+        "95": 1.994,
+        "98": 2.064,
         "LPG": 0.965,
         "AdBlue": 0.925,
-        "D": 2.234
+        "D": 2.184
       },
       "discounts": {
         "Virši+": 0.05
@@ -110,14 +110,14 @@
         "car_wash"
       ],
       "trends": {
-        "95": "stable",
-        "98": "stable",
+        "95": "down",
+        "98": "down",
         "LPG": "stable",
         "AdBlue": "stable",
-        "D": "stable"
+        "D": "down"
       },
       "promos": [],
-      "scraped_at": "2026-09-22T03:10:26.522443"
+      "scraped_at": "2026-09-22T08:59:59.655736"
     }
   }
 }
