@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-10-20T09:06:13.051197",
+  "scraped_at": "2026-10-20T16:18:51.757601",
   "stations": {
     "circle_k": {
       "name": "Circle K",
@@ -7,10 +7,10 @@
       "url": "https://www.circlek.lv/degvielas-cenas",
       "address": "Vairāk nekā 60 AZS Latvijā",
       "prices": {
-        "95": 1.967,
-        "98": 2.037,
-        "D": 2.074,
-        "LPG": 1.011
+        "95": 1.954,
+        "98": 2.024,
+        "D": 2.066,
+        "LPG": 1.024
       },
       "discounts": {
         "EXTRA": 0.07,
@@ -23,13 +23,13 @@
         "tire"
       ],
       "trends": {
-        "95": "up",
-        "98": "up",
+        "95": "down",
+        "98": "down",
         "D": "down",
-        "LPG": "down"
+        "LPG": "up"
       },
       "promos": [],
-      "scraped_at": "2026-10-20T09:06:13.051163"
+      "scraped_at": "2026-10-20T16:18:51.757567"
     },
     "neste": {
       "name": "Neste",
@@ -54,7 +54,7 @@
         "D": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-10-20T09:06:13.051176"
+      "scraped_at": "2026-10-20T16:18:51.757579"
     },
     "viada": {
       "name": "Viada",
@@ -65,7 +65,7 @@
         "95": 1.847,
         "98": 1.952,
         "D": 2.074,
-        "LPG": 0.945
+        "LPG": 0.965
       },
       "discounts": {
         "Viada plus (līdz 70 l)": 0.025,
@@ -80,15 +80,15 @@
         "95": "stable",
         "98": "stable",
         "D": "stable",
-        "LPG": "stable"
+        "LPG": "up"
       },
       "promos": [],
-      "scraped_at": "2026-10-20T09:06:13.051181",
+      "scraped_at": "2026-10-20T16:18:51.757585",
       "adus_prices": {
         "95": 1.847,
         "98": 1.952,
         "D": 1.947,
-        "LPG": 0.945
+        "LPG": 0.965
       }
     },
     "virsi": {
@@ -108,10 +108,10 @@
         "car_wash"
       ],
       "trends": {
-        "95": "down"
+        "95": "stable"
       },
       "promos": [],
-      "scraped_at": "2026-10-20T09:06:13.051185"
+      "scraped_at": "2026-10-20T16:18:51.757590"
     }
   }
 }
